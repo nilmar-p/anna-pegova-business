@@ -1,1 +1,1 @@
-# anna-pegova-stock-manager
+# anna-pegova-business-manager
