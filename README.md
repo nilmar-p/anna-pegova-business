@@ -1,0 +1,1 @@
+# anna-pegova-stock-manager
