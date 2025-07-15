@@ -18,7 +18,7 @@ public class Menu extends javax.swing.JDialog {
         jLabel1 = new javax.swing.JLabel();
         buttonSell = new javax.swing.JButton();
         buttonStock = new javax.swing.JButton();
-        buttonCharges = new javax.swing.JButton();
+        buttonSummaries = new javax.swing.JButton();
         buttonClients = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
@@ -104,20 +104,20 @@ public class Menu extends javax.swing.JDialog {
         });
         getContentPane().add(buttonStock, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 450, 222, 90));
 
-        buttonCharges.setBackground(new java.awt.Color(0, 128, 163));
-        buttonCharges.setFont(new java.awt.Font("Segoe UI Semibold", 0, 30)); // NOI18N
-        buttonCharges.setForeground(new java.awt.Color(255, 255, 255));
-        buttonCharges.setText("COBRANÇAS");
-        buttonCharges.setBorder(null);
-        buttonCharges.setBorderPainted(false);
-        buttonCharges.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        buttonCharges.setFocusPainted(false);
-        buttonCharges.addActionListener(new java.awt.event.ActionListener() {
+        buttonSummaries.setBackground(new java.awt.Color(0, 128, 163));
+        buttonSummaries.setFont(new java.awt.Font("Segoe UI Semibold", 0, 30)); // NOI18N
+        buttonSummaries.setForeground(new java.awt.Color(255, 255, 255));
+        buttonSummaries.setText("RESUMOS");
+        buttonSummaries.setBorder(null);
+        buttonSummaries.setBorderPainted(false);
+        buttonSummaries.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        buttonSummaries.setFocusPainted(false);
+        buttonSummaries.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonChargesActionPerformed(evt);
+                buttonSummariesActionPerformed(evt);
             }
         });
-        getContentPane().add(buttonCharges, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 230, 222, 90));
+        getContentPane().add(buttonSummaries, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 230, 222, 90));
 
         buttonClients.setBackground(new java.awt.Color(0, 128, 163));
         buttonClients.setFont(new java.awt.Font("Segoe UI Semibold", 0, 30)); // NOI18N
@@ -139,7 +139,7 @@ public class Menu extends javax.swing.JDialog {
         jLabel2.setFont(new java.awt.Font("Segoe UI Semibold", 0, 30)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(51, 51, 51));
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel2.setText("RESUMO");
+        jLabel2.setText("FINANCEIRO");
 
         jPanel4.setBackground(new java.awt.Color(204, 204, 204));
         jPanel4.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(102, 102, 102), 2, true));
@@ -425,9 +425,9 @@ public class Menu extends javax.swing.JDialog {
 
     }//GEN-LAST:event_buttonStockActionPerformed
 
-    private void buttonChargesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonChargesActionPerformed
+    private void buttonSummariesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSummariesActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_buttonChargesActionPerformed
+    }//GEN-LAST:event_buttonSummariesActionPerformed
 
     private void buttonClientsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonClientsActionPerformed
         ClientsDialog modalClients = new ClientsDialog(this, true);
@@ -477,10 +477,10 @@ public class Menu extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton buttonCharges;
     private javax.swing.JButton buttonClients;
     private javax.swing.JButton buttonSell;
     private javax.swing.JButton buttonStock;
+    private javax.swing.JButton buttonSummaries;
     private javax.swing.JLabel fieldIncomeThisMonth;
     private javax.swing.JLabel fieldProfitThisMonth;
     private javax.swing.JLabel fieldSalesThisMonth;

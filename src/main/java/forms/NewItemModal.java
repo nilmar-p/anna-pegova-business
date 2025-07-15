@@ -224,7 +224,7 @@ public class NewItemModal extends javax.swing.JDialog {
             Json.saveProduct(newItem);
             JOptionPane.showMessageDialog(null, "PRODUTO CADASTRADO COM SUCESSO!", "Operação concluída", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "ERRO AO CADASTRAR PRODUTO: " + ex);
+            JOptionPane.showMessageDialog(null, "ERRO AO CADASTRAR PRODUTO!", "ERRO!", JOptionPane.ERROR_MESSAGE);
         }
 
         dispose();

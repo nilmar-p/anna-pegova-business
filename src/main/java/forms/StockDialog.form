@@ -49,7 +49,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="buttonDelete" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="buttonSearch2" max="32767" attributes="0"/>
+                      <Component id="buttonNewItem" max="32767" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -67,7 +67,7 @@
                   <Component id="jLabel1" max="32767" attributes="0"/>
                   <Component id="buttonSearch" alignment="0" max="32767" attributes="0"/>
                   <Component id="buttonDelete" alignment="0" max="32767" attributes="0"/>
-                  <Component id="buttonSearch2" alignment="0" max="32767" attributes="0"/>
+                  <Component id="buttonNewItem" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="jScrollPane1" pref="534" max="32767" attributes="0"/>
@@ -256,7 +256,7 @@
         </Component>
       </SubComponents>
     </Container>
-    <Component class="javax.swing.JButton" name="buttonSearch2">
+    <Component class="javax.swing.JButton" name="buttonNewItem">
       <Properties>
         <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
           <Color blue="aa" green="ab" red="e" type="rgb"/>
@@ -273,7 +273,7 @@
         </Property>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonSearch2ActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonNewItemActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>

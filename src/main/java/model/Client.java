@@ -2,8 +2,19 @@ package model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+import utils.Json;
 
 public class Client {
+
+    @JsonProperty("id")
+    private int id;
 
     @JsonProperty("name")
     private String name;
@@ -39,22 +50,62 @@ public class Client {
             @JsonProperty("cpf") String cpf,
             @JsonProperty("city") String city,
             @JsonProperty("street") String street,
-            @JsonProperty("houseNumber") String number,
+            @JsonProperty("houseNumber") String houseNumber,
             @JsonProperty("complement") String complement,
             @JsonProperty("neighborhood") String neighborhood,
             @JsonProperty("cep") String cep) {
+        this.id = generateUniqueClientId();
         this.name = name.trim().isEmpty() ? "SEM NOME" : name.trim().toUpperCase();
         this.phone = phone.trim().isEmpty() ? "SEM TELEFONE" : phone.trim();
         this.cpf = cpf.trim().isEmpty() ? "SEM CPF" : cpf.trim();
         this.city = city.trim().isEmpty() ? "SEM CIDADE" : city.trim().toUpperCase();
         this.street = street.trim().isEmpty() ? "SEM RUA" : street.trim().toUpperCase();
-        this.houseNumber = number.trim().isEmpty() ? "SEM NUMERO" : houseNumber.trim();
+        this.houseNumber = houseNumber.trim().isEmpty() ? "SEM NUMERO" : houseNumber.trim();
         this.complement = complement.trim().isEmpty() ? "SEM COMPLEMENTO" : complement.trim().toUpperCase();
         this.neighborhood = neighborhood.trim().isEmpty() ? "SEM BAIRRO" : neighborhood.trim().toUpperCase();
         this.cep = cep.trim().isEmpty() ? "SEM CEP" : cep.trim().toUpperCase();
     }
 
+    //
+    private int generateUniqueClientId() {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+            Path fileLocation = Json.getProductsFileLocation();
+            Files.createDirectories(fileLocation.getParent());
+
+            List<Item> products = new ArrayList<>();
+
+            int newId;
+            boolean idExists;
+
+            do {
+                newId = ThreadLocalRandom.current().nextInt(10000, 99999);
+                idExists = false;
+
+                for (Item product : products) {
+                    if (product.getId() == newId) {
+                        idExists = true;
+                        break;
+                    }
+                }
+            } while (idExists);
+
+            return newId;
+
+        } catch (Exception e) {
+            System.out.println("ERRO NA CRIACAO DE ID");
+            return ThreadLocalRandom.current().nextInt(1000, 10000);
+        }
+    }
+
     // Getters e Setters
+    
+    public int getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }

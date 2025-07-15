@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import model.Client;
 import model.Item;
 
 public class Search {
@@ -16,7 +17,7 @@ public class Search {
     public static void searchItemsOnTable(JTable tableRegistereds, String search) throws IOException {
         if (search.isEmpty()) {
             try {
-                Json.refreshTable(tableRegistereds);
+                Json.refreshProductsTable(tableRegistereds);
             } catch (IOException ex) {
                 Logger.getLogger(Search.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -40,6 +41,39 @@ public class Search {
                     String.format("R$ %.2f", product.getTotal()),
                     String.format("%.2f%%", product.getMargin()),
                     String.format("R$ %.2f", product.getProfit())
+                };
+
+                tableRegisteredsModel.addRow(productA);
+            }
+
+        }
+    }
+
+    public static void searchClientsOnTable(JTable tableRegistereds, String search) throws IOException {
+        if (search.isEmpty()) {
+            try {
+                Json.refreshClientsTable(tableRegistereds);
+            } catch (IOException ex) {
+                Logger.getLogger(Search.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        DefaultTableModel tableRegisteredsModel = (DefaultTableModel) tableRegistereds.getModel();
+        ObjectMapper mapper = new ObjectMapper();
+
+        List<Client> clients = mapper.readValue(new File(String.valueOf(Json.getClientsFileLocation())), new TypeReference<List<Client>>() {
+        });
+
+        tableRegisteredsModel.setRowCount(0);
+
+        for (Client client : clients) {
+            if (client.getName().startsWith(search)) {
+                Object[] productA = {
+                    client.getId(),
+                    client.getName(),
+                    client.getPhone(),
+                    client.getCpf(),
+                    client.getCity()
                 };
 
                 tableRegisteredsModel.addRow(productA);

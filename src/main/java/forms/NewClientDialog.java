@@ -1,11 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
- */
+
 package forms;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import model.Client;
+import utils.Json;
 
 /**
  *
@@ -292,6 +293,13 @@ public class NewClientDialog extends javax.swing.JDialog {
             );
         } catch (Exception e) {
             System.out.println("Erro ao criar cliente: " + e.getMessage());
+        }
+
+        try {
+            Json.saveClient(newClient);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "ERRO AO CADASTRAR CLIENTE: " + ex);
+
         }
 
         dispose();

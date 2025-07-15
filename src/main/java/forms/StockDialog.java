@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
 import utils.Json;
 import utils.Search;
 
@@ -33,7 +32,7 @@ public class StockDialog extends javax.swing.JDialog {
         buttonDelete = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tableRegistereds = new javax.swing.JTable();
-        buttonSearch2 = new javax.swing.JButton();
+        buttonNewItem = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("ANNA PEGOVA - CONTROLE DE ESTOQUE");
@@ -147,14 +146,14 @@ public class StockDialog extends javax.swing.JDialog {
             tableRegistereds.getColumnModel().getColumn(6).setResizable(false);
         }
 
-        buttonSearch2.setBackground(new java.awt.Color(14, 171, 170));
-        buttonSearch2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        buttonSearch2.setForeground(new java.awt.Color(255, 255, 255));
-        buttonSearch2.setText("NOVO ITEM");
-        buttonSearch2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        buttonSearch2.addActionListener(new java.awt.event.ActionListener() {
+        buttonNewItem.setBackground(new java.awt.Color(14, 171, 170));
+        buttonNewItem.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        buttonNewItem.setForeground(new java.awt.Color(255, 255, 255));
+        buttonNewItem.setText("NOVO ITEM");
+        buttonNewItem.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        buttonNewItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonSearch2ActionPerformed(evt);
+                buttonNewItemActionPerformed(evt);
             }
         });
 
@@ -179,7 +178,7 @@ public class StockDialog extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonDelete)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonSearch2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(buttonNewItem, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -193,7 +192,7 @@ public class StockDialog extends javax.swing.JDialog {
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(buttonSearch, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(buttonDelete, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(buttonSearch2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(buttonNewItem, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 534, Short.MAX_VALUE)
                 .addContainerGap())
@@ -204,7 +203,7 @@ public class StockDialog extends javax.swing.JDialog {
 
     private void buttonSearch1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSearch1ActionPerformed
         try {
-            Json.refreshTable(tableRegistereds);
+            Json.refreshProductsTable(tableRegistereds);
             fieldSearch.setText("");
             JOptionPane.showMessageDialog(null, "Tabela atualizada!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
@@ -227,21 +226,21 @@ public class StockDialog extends javax.swing.JDialog {
 
     private void buttonDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonDeleteActionPerformed
         try {
-            Json.deleteItemFromJson(tableRegistereds);
+            Json.deleteIndexFromJson(tableRegistereds, Json.getProductsFileLocation(), 0);
         } catch (IOException ex) {
             Logger.getLogger(StockDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_buttonDeleteActionPerformed
 
-    private void buttonSearch2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSearch2ActionPerformed
+    private void buttonNewItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonNewItemActionPerformed
         NewItemModal modalNew = new NewItemModal(this, true);
         modalNew.setVisible(true);
-    }//GEN-LAST:event_buttonSearch2ActionPerformed
+    }//GEN-LAST:event_buttonNewItemActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
 
         try {
-            Json.refreshTable(tableRegistereds);
+            Json.refreshProductsTable(tableRegistereds);
         } catch (IOException ex) {
             Logger.getLogger(StockDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -250,7 +249,7 @@ public class StockDialog extends javax.swing.JDialog {
 
     private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
         try {
-            Json.refreshTable(tableRegistereds);
+            Json.refreshProductsTable(tableRegistereds);
         } catch (IOException ex) {
             Logger.getLogger(StockDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -300,9 +299,9 @@ public class StockDialog extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonDelete;
+    private javax.swing.JButton buttonNewItem;
     private javax.swing.JButton buttonSearch;
     private javax.swing.JButton buttonSearch1;
-    private javax.swing.JButton buttonSearch2;
     private javax.swing.JComboBox<String> comboFilter;
     private javax.swing.JTextField fieldSearch;
     private javax.swing.JLabel jLabel1;
