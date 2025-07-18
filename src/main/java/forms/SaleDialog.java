@@ -15,10 +15,10 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.SpinnerNumberModel;
 import model.Client;
-import model.Item;
+import model.Product;
 import utils.Json;
 import utils.Mask;
-import utils.Sale;
+import utils.SaleFunctions;
 
 /**
  *
@@ -26,10 +26,9 @@ import utils.Sale;
  */
 public class SaleDialog extends javax.swing.JDialog {
 
-    private List<Item> productsList;
+    private List<Product> productsList;
     private List<Client> clientsList;
     private String slc = "Selecione";
-    private SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
     //
     public SaleDialog(java.awt.Dialog parent, boolean modal) {
@@ -324,7 +323,7 @@ public class SaleDialog extends javax.swing.JDialog {
             clientsList = mapper.readValue(contentC, new TypeReference<>() {
             });
 
-            for (Item item : productsList) {
+            for (Product item : productsList) {
                 modelP.addElement(String.format("%05d - %s", item.getId(), item.getName()));
             }
 
@@ -376,7 +375,7 @@ public class SaleDialog extends javax.swing.JDialog {
             return;
         }
 
-        Item selectedProduct = productsList.get(comboProduct.getSelectedIndex());
+        Product selectedProduct = productsList.get(comboProduct.getSelectedIndex());
         Client selectedClient = clientsList.get(comboClient.getSelectedIndex());
 
         int amount = ((Number) spinnerAmount.getValue()).intValue();
@@ -408,27 +407,22 @@ public class SaleDialog extends javax.swing.JDialog {
             return;
         }
 
-        Date billingDate = dateBillingDate.getDate();
-        String formatedBillingDate = sdf.format(billingDate);
-
-        System.out.println(formatedBillingDate);
+        Date initialBillingDate = dateBillingDate.getDate();
 
         int numberOfInstallments = ((Number) spinnerInstallment.getValue()).intValue();
         
-        double installmentValue = netValue / numberOfInstallments;
+        double installmentValue = netValue / (double) numberOfInstallments;
 
-        List<Date> allBillingDates = Sale.allBillingDates(billingDate, numberOfInstallments);
+        List<Date> allBillingDates = SaleFunctions.allBillingDates(initialBillingDate, numberOfInstallments);
 
-        String lastBillingDate = sdf.format(allBillingDates.getLast());
-
-        if (!Sale.finishSale(selectedClient.getName(), selectedClient.getCpf(), selectedProduct.getPrice(), grossValue,
-                amount, absoluteDiscount, percentageDiscount, netValue, installmentValue, selectedProduct, selectedClient, formatedBillingDate,
-                numberOfInstallments, lastBillingDate)) {
+        if (!SaleFunctions.finishSale(selectedProduct.getPrice(), grossValue,
+                amount, absoluteDiscount, percentageDiscount, netValue, installmentValue, selectedProduct, selectedClient,
+                (double) numberOfInstallments, allBillingDates)) {
             JOptionPane.showMessageDialog(null, "Operação cancelada!", "CANCELAMENTO", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        //logica para atualizar os valores no json
+        dispose();
     }//GEN-LAST:event_buttonProceedActionPerformed
 
     private void spinnerAmountStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_spinnerAmountStateChanged

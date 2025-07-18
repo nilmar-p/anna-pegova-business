@@ -1,15 +1,29 @@
 package forms;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JTable;
+import javax.swing.SwingUtilities;
+import model.Client;
 import utils.Json;
 import utils.Search;
 
 public class ClientsDialog extends javax.swing.JDialog {
 
+    private static Client selectedClient;
+
+    //
+    public static Client getSelectedClient() {
+        return selectedClient;
+    }
+
+    //
     public ClientsDialog(java.awt.Dialog parent, boolean modal) {
         super(parent, modal);
         initComponents();
@@ -47,12 +61,13 @@ public class ClientsDialog extends javax.swing.JDialog {
             }
         });
 
-        buttonRefresh.setBackground(new java.awt.Color(0, 128, 163));
+        buttonRefresh.setBackground(new java.awt.Color(88, 154, 89));
         buttonRefresh.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         buttonRefresh.setForeground(new java.awt.Color(255, 255, 255));
-        buttonRefresh.setText("R");
+        buttonRefresh.setText("A");
         buttonRefresh.setToolTipText("Recarregar");
         buttonRefresh.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        buttonRefresh.setFocusPainted(false);
         buttonRefresh.setMaximumSize(new java.awt.Dimension(36, 36));
         buttonRefresh.setMinimumSize(new java.awt.Dimension(36, 36));
         buttonRefresh.setPreferredSize(new java.awt.Dimension(36, 36));
@@ -71,13 +86,14 @@ public class ClientsDialog extends javax.swing.JDialog {
         buttonSearch.setForeground(new java.awt.Color(255, 255, 255));
         buttonSearch.setText("BUSCAR");
         buttonSearch.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        buttonSearch.setFocusPainted(false);
         buttonSearch.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buttonSearchActionPerformed(evt);
             }
         });
 
-        comboFilter.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "NOME" }));
+        comboFilter.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "NOME", "CIDADE" }));
         comboFilter.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         comboFilter.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -93,6 +109,7 @@ public class ClientsDialog extends javax.swing.JDialog {
         buttonDelete.setForeground(new java.awt.Color(255, 255, 255));
         buttonDelete.setText("DELETAR");
         buttonDelete.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        buttonDelete.setFocusPainted(false);
         buttonDelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buttonDeleteActionPerformed(evt);
@@ -125,8 +142,14 @@ public class ClientsDialog extends javax.swing.JDialog {
                 return canEdit [columnIndex];
             }
         });
+        tableRegistereds.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tableRegistereds.setShowGrid(false);
         tableRegistereds.getTableHeader().setReorderingAllowed(false);
+        tableRegistereds.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                tableRegisteredsMousePressed(evt);
+            }
+        });
         jScrollPane1.setViewportView(tableRegistereds);
         if (tableRegistereds.getColumnModel().getColumnCount() > 0) {
             tableRegistereds.getColumnModel().getColumn(0).setMinWidth(55);
@@ -145,6 +168,7 @@ public class ClientsDialog extends javax.swing.JDialog {
         buttonNewClient.setForeground(new java.awt.Color(255, 255, 255));
         buttonNewClient.setText("NOVO CLIENTE");
         buttonNewClient.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        buttonNewClient.setFocusPainted(false);
         buttonNewClient.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buttonNewClientActionPerformed(evt);
@@ -208,7 +232,7 @@ public class ClientsDialog extends javax.swing.JDialog {
 
     private void buttonSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSearchActionPerformed
         try {
-            Search.searchClientsOnTable(tableRegistereds, fieldSearch.getText().toUpperCase());
+            Search.searchClientsOnTable(tableRegistereds, fieldSearch.getText().toUpperCase(), comboFilter.getSelectedItem().toString());
         } catch (IOException ex) {
             Logger.getLogger(ClientsDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -248,6 +272,75 @@ public class ClientsDialog extends javax.swing.JDialog {
             Logger.getLogger(ClientsDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_formWindowGainedFocus
+
+    private void tableRegisteredsMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableRegisteredsMousePressed
+        if (!SwingUtilities.isRightMouseButton(evt)) {
+            return;
+        }
+
+        int row = tableRegistereds.rowAtPoint(evt.getPoint());
+
+        if (row < 0) {
+            return;
+        }
+
+        tableRegistereds.setRowSelectionInterval(row, row);
+        tableRegistereds.setFocusable(true);
+        tableRegistereds.requestFocusInWindow();
+
+        JPopupMenu popupMenu = new JPopupMenu();
+
+        JMenuItem viewItem = new JMenuItem("Visualizar cliente");
+        viewItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int clientId = (Integer) tableRegistereds.getValueAt(row, 0);
+
+                Client client = null;
+
+                try {
+                    client = (Client) Json.returnRowAsObject(clientId, 1);
+                    System.out.println(client);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(null, "ERRO AO ABRIR PAINEL DE VISUALIZAÇÃO!", "ERRO!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                selectedClient = client;
+                System.out.println("ID PEGO COM SUCESSO" + selectedClient.getId());
+
+                ModalViewClient modalView = new ModalViewClient(ClientsDialog.this, true);
+                modalView.setVisible(true);
+            }
+        });
+
+        JMenuItem editItem = new JMenuItem("Editar cliente");
+        editItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int clientId = (Integer) tableRegistereds.getValueAt(row, 0);
+
+                Client client = null;
+
+                try {
+                    client = (Client) Json.returnRowAsObject(clientId, 1);
+                    System.out.println(client);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(null, "ERRO AO ABRIR PAINEL DE EDIÇÃO!", "ERRO!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                selectedClient = client;
+                System.out.println("ID PEGO COM SUCESSO" + selectedClient.getId());
+
+                ModalEditClient modalView = new ModalEditClient(ClientsDialog.this, true);
+                modalView.setVisible(true);
+            }
+        });
+
+        popupMenu.add(viewItem);
+        popupMenu.add(editItem);
+        popupMenu.show(tableRegistereds, evt.getX(), evt.getY());
+
+    }//GEN-LAST:event_tableRegisteredsMousePressed
 
     /**
      * @param args the command line arguments

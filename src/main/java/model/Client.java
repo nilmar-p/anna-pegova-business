@@ -54,7 +54,7 @@ public class Client {
             @JsonProperty("complement") String complement,
             @JsonProperty("neighborhood") String neighborhood,
             @JsonProperty("cep") String cep) {
-        this.id = generateUniqueClientId();
+        this.setId(generateUniqueClientId());
         this.name = name.trim().isEmpty() ? "SEM NOME" : name.trim().toUpperCase();
         this.phone = phone.trim().isEmpty() ? "SEM TELEFONE" : phone.trim();
         this.cpf = cpf.trim().isEmpty() ? "SEM CPF" : cpf.trim();
@@ -72,10 +72,10 @@ public class Client {
             ObjectMapper mapper = new ObjectMapper();
             mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-            Path fileLocation = Json.getProductsFileLocation();
+            Path fileLocation = Json.getClientsFileLocation();
             Files.createDirectories(fileLocation.getParent());
 
-            List<Item> products = new ArrayList<>();
+            List<Product> products = new ArrayList<>();
 
             int newId;
             boolean idExists;
@@ -84,7 +84,7 @@ public class Client {
                 newId = ThreadLocalRandom.current().nextInt(10000, 99999);
                 idExists = false;
 
-                for (Item product : products) {
+                for (Product product : products) {
                     if (product.getId() == newId) {
                         idExists = true;
                         break;
@@ -101,7 +101,6 @@ public class Client {
     }
 
     // Getters e Setters
-    
     public int getId() {
         return id;
     }
@@ -143,6 +142,10 @@ public class Client {
     }
 
     //
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public void setName(String name) {
         this.name = name;
     }

@@ -1,13 +1,26 @@
 package forms;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+import model.Product;
 import utils.Json;
 import utils.Search;
 
 public class StockDialog extends javax.swing.JDialog {
+
+    private static Product selectedProduct;
+
+    //
+    public static Product getSelectedProduct() {
+        return selectedProduct;
+    }
 
     public StockDialog(java.awt.Dialog parent, boolean modal) {
         super(parent, modal);
@@ -51,12 +64,13 @@ public class StockDialog extends javax.swing.JDialog {
             }
         });
 
-        buttonSearch1.setBackground(new java.awt.Color(0, 128, 163));
+        buttonSearch1.setBackground(new java.awt.Color(88, 154, 89));
         buttonSearch1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         buttonSearch1.setForeground(new java.awt.Color(255, 255, 255));
-        buttonSearch1.setText("R");
+        buttonSearch1.setText("A");
         buttonSearch1.setToolTipText("Recarregar");
         buttonSearch1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        buttonSearch1.setFocusPainted(false);
         buttonSearch1.setMaximumSize(new java.awt.Dimension(36, 36));
         buttonSearch1.setMinimumSize(new java.awt.Dimension(36, 36));
         buttonSearch1.setPreferredSize(new java.awt.Dimension(36, 36));
@@ -75,6 +89,7 @@ public class StockDialog extends javax.swing.JDialog {
         buttonSearch.setForeground(new java.awt.Color(255, 255, 255));
         buttonSearch.setText("BUSCAR");
         buttonSearch.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        buttonSearch.setFocusPainted(false);
         buttonSearch.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buttonSearchActionPerformed(evt);
@@ -97,6 +112,7 @@ public class StockDialog extends javax.swing.JDialog {
         buttonDelete.setForeground(new java.awt.Color(255, 255, 255));
         buttonDelete.setText("DELETAR");
         buttonDelete.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        buttonDelete.setFocusPainted(false);
         buttonDelete.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buttonDeleteActionPerformed(evt);
@@ -129,8 +145,14 @@ public class StockDialog extends javax.swing.JDialog {
                 return canEdit [columnIndex];
             }
         });
+        tableRegistereds.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tableRegistereds.setShowGrid(false);
         tableRegistereds.getTableHeader().setReorderingAllowed(false);
+        tableRegistereds.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                tableRegisteredsMousePressed(evt);
+            }
+        });
         jScrollPane1.setViewportView(tableRegistereds);
         if (tableRegistereds.getColumnModel().getColumnCount() > 0) {
             tableRegistereds.getColumnModel().getColumn(0).setMinWidth(55);
@@ -151,6 +173,7 @@ public class StockDialog extends javax.swing.JDialog {
         buttonNewItem.setForeground(new java.awt.Color(255, 255, 255));
         buttonNewItem.setText("NOVO ITEM");
         buttonNewItem.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        buttonNewItem.setFocusPainted(false);
         buttonNewItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buttonNewItemActionPerformed(evt);
@@ -214,7 +237,7 @@ public class StockDialog extends javax.swing.JDialog {
 
     private void buttonSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSearchActionPerformed
         try {
-            Search.searchItemsOnTable(tableRegistereds, fieldSearch.getText().toUpperCase());
+            Search.searchItemOnTable(tableRegistereds, fieldSearch.getText(), 0);
         } catch (IOException ex) {
             Logger.getLogger(StockDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -233,7 +256,7 @@ public class StockDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_buttonDeleteActionPerformed
 
     private void buttonNewItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonNewItemActionPerformed
-        NewItemModal modalNew = new NewItemModal(this, true);
+        NewProductModal modalNew = new NewProductModal(this, true);
         modalNew.setVisible(true);
     }//GEN-LAST:event_buttonNewItemActionPerformed
 
@@ -254,6 +277,74 @@ public class StockDialog extends javax.swing.JDialog {
             Logger.getLogger(StockDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_formWindowGainedFocus
+
+    private void tableRegisteredsMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableRegisteredsMousePressed
+        if (!SwingUtilities.isRightMouseButton(evt)) {
+            return;
+        }
+
+        int row = tableRegistereds.rowAtPoint(evt.getPoint());
+
+        if (row < 0) {
+            return;
+        }
+
+        tableRegistereds.setRowSelectionInterval(row, row);
+        tableRegistereds.setFocusable(true);
+        tableRegistereds.requestFocusInWindow();
+
+        JPopupMenu popupMenu = new JPopupMenu();
+
+        JMenuItem viewItem = new JMenuItem("Visualizar produto");
+        viewItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int productId = (Integer) tableRegistereds.getValueAt(row, 0);
+
+                Product product = null;
+
+                try {
+                    product = (Product) Json.returnRowAsObject(productId, 0);
+                    System.out.println(product);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(null, "ERRO AO ABRIR PAINEL DE VISUALIZAÇÃO!", "ERRO!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                selectedProduct = product;
+                System.out.println("ID PEGO COM SUCESSO " + selectedProduct.getId());
+
+                ModalViewProduct modalView = new ModalViewProduct(StockDialog.this, true);
+                modalView.setVisible(true);
+            }
+        });
+
+        JMenuItem editItem = new JMenuItem("Editar produto");
+        editItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int productId = (Integer) tableRegistereds.getValueAt(row, 0);
+
+                Product product = null;
+
+                try {
+                    product = (Product) Json.returnRowAsObject(productId, 0);
+                    System.out.println(product);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(null, "ERRO AO ABRIR PAINEL DE EDIÇÃO!", "ERRO!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                selectedProduct = product;
+                System.out.println("ID PEGO COM SUCESSO " + selectedProduct.getId());
+
+                ModalEditProduct modalEdit = new ModalEditProduct(StockDialog.this, true);
+                modalEdit.setVisible(true);
+            }
+        });
+
+        popupMenu.add(viewItem);
+        popupMenu.add(editItem);
+        popupMenu.show(tableRegistereds, evt.getX(), evt.getY());
+    }//GEN-LAST:event_tableRegisteredsMousePressed
 
     /**
      * @param args the command line arguments

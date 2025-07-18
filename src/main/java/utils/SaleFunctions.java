@@ -1,18 +1,21 @@
 package utils;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.swing.JOptionPane;
 import model.Client;
-import model.Item;
+import model.Product;
+import model.Sale;
 
-public class Sale {
+public class SaleFunctions {
+
+    private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
     public static boolean finishSale(
-            String clientName,
-            String clientCpf,
             double unitPrice,
             double grossValue,
             int amount,
@@ -20,11 +23,11 @@ public class Sale {
             double percentageDiscount,
             double netValue,
             double installmentValue,
-            Item selectedProduct,
+            Product selectedProduct,
             Client selectedClient,
-            String billingDate,
-            int numberOfInstallments,
-            String lastBillingDate) {
+            double numberOfInstallments,
+            List<Date> allBillingDates
+    ) {
 
         String msg = String.format(
                 """
@@ -83,7 +86,7 @@ public class Sale {
                 <tr>
                     <td style='background-color: #f0f4f8; padding: 10px; border-radius: 6px; text-align:center;'>
                         <div style='font-size:14px; color:#0056b3; margin-bottom:5px;'>
-                            <b>%d</b> parcelas de <b style='font-size:15px;'>R$ %.2f</b>
+                            <b>%.0f</b> parcelas de <b style='font-size:15px;'>R$ %.2f</b>
                         </div>
                         <div style='font-size:12px; color:#495057;'>
                             1ª cobrança: <b>%s</b> &nbsp;|&nbsp; Última: <b>%s</b>
@@ -102,9 +105,8 @@ public class Sale {
     </body>
     </html>
     """,
-                // Mantenha a mesma ordem de argumentos que no seu código original
-                clientName,
-                clientCpf,
+                selectedClient.getName(),
+                selectedProduct.getName(),
                 unitPrice,
                 amount,
                 grossValue,
@@ -113,8 +115,8 @@ public class Sale {
                 netValue,
                 numberOfInstallments,
                 installmentValue,
-                billingDate,
-                lastBillingDate
+                sdf.format(allBillingDates.getFirst()),
+                sdf.format(allBillingDates.getLast())
         );
         int choice = JOptionPane.showConfirmDialog(
                 null,
@@ -126,6 +128,17 @@ public class Sale {
 
         switch (choice) {
             case JOptionPane.YES_OPTION -> {
+
+                Sale newSale = new Sale(selectedClient.getId(), selectedClient.getName(),
+                        selectedProduct.getId(),
+                        selectedProduct.getName(), amount, netValue, installmentValue, allBillingDates);
+
+                try {
+                    Json.saveSale(newSale);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(null, "Erro ao salvar compra!", "ERRO!", JOptionPane.ERROR_MESSAGE);
+                    return false;
+                }
                 return true;
             }
             case JOptionPane.NO_OPTION -> {

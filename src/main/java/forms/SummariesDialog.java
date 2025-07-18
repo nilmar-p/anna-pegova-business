@@ -1,8 +1,17 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
- */
 package forms;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
+import model.Sale;
+import utils.Json;
+import utils.Search;
 
 /**
  *
@@ -10,10 +19,14 @@ package forms;
  */
 public class SummariesDialog extends javax.swing.JDialog {
 
-    /**
-     * Creates new form SummariesDialog
-     */
-    public SummariesDialog(java.awt.Frame parent, boolean modal) {
+    private static Sale selectedSale;
+
+    //
+    public static Sale getSelectedSale() {
+        return selectedSale;
+    }
+
+    public SummariesDialog(java.awt.Dialog parent, boolean modal) {
         super(parent, modal);
         initComponents();
     }
@@ -27,83 +40,113 @@ public class SummariesDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        buttonDelete = new javax.swing.JButton();
+        buttonCancel = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tableRegistereds = new javax.swing.JTable();
-        buttonSearch1 = new javax.swing.JButton();
-        fieldSearch = new javax.swing.JTextField();
+        tableCurrentSales = new javax.swing.JTable();
+        buttonRefresh = new javax.swing.JButton();
+        fieldSearchCurrent = new javax.swing.JTextField();
         buttonSearch = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        buttonSearch2 = new javax.swing.JButton();
-        fieldSearch1 = new javax.swing.JTextField();
-        buttonSearch3 = new javax.swing.JButton();
+        fieldSearchCompleted = new javax.swing.JTextField();
+        buttonSearchCompleted = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        tableRegistereds1 = new javax.swing.JTable();
+        tableCompletedSales = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("ANNA PEGOVA - RESUMOS");
         setPreferredSize(new java.awt.Dimension(1256, 650));
         setResizable(false);
-
-        buttonDelete.setBackground(new java.awt.Color(255, 51, 51));
-        buttonDelete.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        buttonDelete.setForeground(new java.awt.Color(255, 255, 255));
-        buttonDelete.setText("CANCELAR");
-        buttonDelete.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        buttonDelete.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonDeleteActionPerformed(evt);
+        addWindowFocusListener(new java.awt.event.WindowFocusListener() {
+            public void windowGainedFocus(java.awt.event.WindowEvent evt) {
+                formWindowGainedFocus(evt);
+            }
+            public void windowLostFocus(java.awt.event.WindowEvent evt) {
+            }
+        });
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
             }
         });
 
-        tableRegistereds.setRowHeight(25);
-        tableRegistereds.setModel(new javax.swing.table.DefaultTableModel(
+        buttonCancel.setBackground(new java.awt.Color(255, 51, 51));
+        buttonCancel.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        buttonCancel.setForeground(new java.awt.Color(255, 255, 255));
+        buttonCancel.setText("CANCELAR");
+        buttonCancel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        buttonCancel.setFocusPainted(false);
+        buttonCancel.setPreferredSize(new java.awt.Dimension(106, 35));
+        buttonCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                buttonCancelActionPerformed(evt);
+            }
+        });
+
+        tableCurrentSales.setRowHeight(25);
+        tableCurrentSales.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "ID", "NOME", "VOLUME", "QTD.", "VALOR", "MARGEM", "LUCRO"
+                "ID", "PRODUTO", "CLIENTE", "PROX. PARCELA"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false
+                false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
-        tableRegistereds.setShowGrid(false);
-        tableRegistereds.getTableHeader().setReorderingAllowed(false);
-        jScrollPane1.setViewportView(tableRegistereds);
+        tableCurrentSales.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tableCurrentSales.setShowGrid(false);
+        tableCurrentSales.getTableHeader().setReorderingAllowed(false);
+        tableCurrentSales.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                tableCurrentSalesMousePressed(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tableCurrentSales);
+        if (tableCurrentSales.getColumnModel().getColumnCount() > 0) {
+            tableCurrentSales.getColumnModel().getColumn(0).setMinWidth(50);
+            tableCurrentSales.getColumnModel().getColumn(0).setPreferredWidth(50);
+            tableCurrentSales.getColumnModel().getColumn(0).setMaxWidth(50);
+            tableCurrentSales.getColumnModel().getColumn(3).setMinWidth(120);
+            tableCurrentSales.getColumnModel().getColumn(3).setPreferredWidth(120);
+            tableCurrentSales.getColumnModel().getColumn(3).setMaxWidth(120);
+        }
 
-        buttonSearch1.setBackground(new java.awt.Color(0, 128, 163));
-        buttonSearch1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        buttonSearch1.setForeground(new java.awt.Color(255, 255, 255));
-        buttonSearch1.setText("R");
-        buttonSearch1.setToolTipText("Recarregar");
-        buttonSearch1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        buttonSearch1.setMaximumSize(new java.awt.Dimension(36, 36));
-        buttonSearch1.setMinimumSize(new java.awt.Dimension(36, 36));
-        buttonSearch1.setPreferredSize(new java.awt.Dimension(36, 36));
-        buttonSearch1.addActionListener(new java.awt.event.ActionListener() {
+        buttonRefresh.setBackground(new java.awt.Color(88, 154, 89));
+        buttonRefresh.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        buttonRefresh.setForeground(new java.awt.Color(255, 255, 255));
+        buttonRefresh.setText("ATUALIZAR");
+        buttonRefresh.setToolTipText("Recarregar");
+        buttonRefresh.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        buttonRefresh.setFocusPainted(false);
+        buttonRefresh.setMaximumSize(new java.awt.Dimension(36, 36));
+        buttonRefresh.setMinimumSize(new java.awt.Dimension(36, 36));
+        buttonRefresh.setPreferredSize(new java.awt.Dimension(106, 35));
+        buttonRefresh.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonSearch1ActionPerformed(evt);
+                buttonRefreshActionPerformed(evt);
             }
         });
 
-        fieldSearch.setMaximumSize(new java.awt.Dimension(350, 35));
-        fieldSearch.setMinimumSize(new java.awt.Dimension(350, 35));
-        fieldSearch.setPreferredSize(new java.awt.Dimension(350, 35));
+        fieldSearchCurrent.setMaximumSize(new java.awt.Dimension(350, 35));
+        fieldSearchCurrent.setMinimumSize(new java.awt.Dimension(350, 35));
+        fieldSearchCurrent.setPreferredSize(new java.awt.Dimension(350, 35));
 
         buttonSearch.setBackground(new java.awt.Color(0, 128, 163));
         buttonSearch.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         buttonSearch.setForeground(new java.awt.Color(255, 255, 255));
         buttonSearch.setText("BUSCAR");
         buttonSearch.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        buttonSearch.setFocusPainted(false);
+        buttonSearch.setPreferredSize(new java.awt.Dimension(106, 35));
         buttonSearch.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 buttonSearchActionPerformed(evt);
@@ -128,33 +171,19 @@ public class SummariesDialog extends javax.swing.JDialog {
             .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE)
         );
 
-        buttonSearch2.setBackground(new java.awt.Color(0, 128, 163));
-        buttonSearch2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        buttonSearch2.setForeground(new java.awt.Color(255, 255, 255));
-        buttonSearch2.setText("R");
-        buttonSearch2.setToolTipText("Recarregar");
-        buttonSearch2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        buttonSearch2.setMaximumSize(new java.awt.Dimension(36, 36));
-        buttonSearch2.setMinimumSize(new java.awt.Dimension(36, 36));
-        buttonSearch2.setPreferredSize(new java.awt.Dimension(36, 36));
-        buttonSearch2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonSearch2ActionPerformed(evt);
-            }
-        });
+        fieldSearchCompleted.setMaximumSize(new java.awt.Dimension(350, 35));
+        fieldSearchCompleted.setMinimumSize(new java.awt.Dimension(350, 35));
+        fieldSearchCompleted.setPreferredSize(new java.awt.Dimension(350, 35));
 
-        fieldSearch1.setMaximumSize(new java.awt.Dimension(350, 35));
-        fieldSearch1.setMinimumSize(new java.awt.Dimension(350, 35));
-        fieldSearch1.setPreferredSize(new java.awt.Dimension(350, 35));
-
-        buttonSearch3.setBackground(new java.awt.Color(0, 128, 163));
-        buttonSearch3.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        buttonSearch3.setForeground(new java.awt.Color(255, 255, 255));
-        buttonSearch3.setText("BUSCAR");
-        buttonSearch3.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        buttonSearch3.addActionListener(new java.awt.event.ActionListener() {
+        buttonSearchCompleted.setBackground(new java.awt.Color(0, 128, 163));
+        buttonSearchCompleted.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        buttonSearchCompleted.setForeground(new java.awt.Color(255, 255, 255));
+        buttonSearchCompleted.setText("BUSCAR");
+        buttonSearchCompleted.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        buttonSearchCompleted.setPreferredSize(new java.awt.Dimension(98, 35));
+        buttonSearchCompleted.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonSearch3ActionPerformed(evt);
+                buttonSearchCompletedActionPerformed(evt);
             }
         });
 
@@ -176,26 +205,40 @@ public class SummariesDialog extends javax.swing.JDialog {
             .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE)
         );
 
-        tableRegistereds.setRowHeight(25);
-        tableRegistereds1.setModel(new javax.swing.table.DefaultTableModel(
+        tableCurrentSales.setRowHeight(25);
+        tableCompletedSales.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "ID", "NOME", "VOLUME", "QTD.", "VALOR", "MARGEM", "LUCRO"
+                "ID", "PRODUTO", "CLIENTE", "ULTIMA PARCELA"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false
+                false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
                 return canEdit [columnIndex];
             }
         });
-        tableRegistereds1.setShowGrid(false);
-        tableRegistereds1.getTableHeader().setReorderingAllowed(false);
-        jScrollPane2.setViewportView(tableRegistereds1);
+        tableCompletedSales.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tableCompletedSales.setShowGrid(false);
+        tableCompletedSales.getTableHeader().setReorderingAllowed(false);
+        tableCompletedSales.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                tableCompletedSalesMousePressed(evt);
+            }
+        });
+        jScrollPane2.setViewportView(tableCompletedSales);
+        if (tableCompletedSales.getColumnModel().getColumnCount() > 0) {
+            tableCompletedSales.getColumnModel().getColumn(0).setMinWidth(50);
+            tableCompletedSales.getColumnModel().getColumn(0).setPreferredWidth(50);
+            tableCompletedSales.getColumnModel().getColumn(0).setMaxWidth(50);
+            tableCompletedSales.getColumnModel().getColumn(3).setMinWidth(120);
+            tableCompletedSales.getColumnModel().getColumn(3).setPreferredWidth(120);
+            tableCompletedSales.getColumnModel().getColumn(3).setMaxWidth(120);
+        }
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -204,27 +247,26 @@ public class SummariesDialog extends javax.swing.JDialog {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 623, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(fieldSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(fieldSearchCurrent, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonSearch1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(buttonSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonSearch)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonDelete, javax.swing.GroupLayout.DEFAULT_SIZE, 126, Short.MAX_VALUE))
+                        .addComponent(buttonCancel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 619, Short.MAX_VALUE)
+                    .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 624, Short.MAX_VALUE)
                     .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 132, Short.MAX_VALUE)
-                        .addComponent(fieldSearch1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(buttonRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonSearch2, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(fieldSearchCompleted, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonSearch3)))
+                        .addComponent(buttonSearchCompleted, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -235,20 +277,19 @@ public class SummariesDialog extends javax.swing.JDialog {
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(buttonSearch1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(fieldSearch, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(buttonDelete, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(buttonSearch, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(fieldSearchCurrent, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(buttonSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(buttonCancel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(18, 18, 18)
                         .addComponent(jScrollPane1))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(buttonSearch2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(fieldSearch1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(buttonSearch3, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(buttonSearchCompleted, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(fieldSearchCompleted, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(buttonRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 464, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
@@ -258,25 +299,157 @@ public class SummariesDialog extends javax.swing.JDialog {
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
-    private void buttonDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonDeleteActionPerformed
+    private void buttonCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonCancelActionPerformed
+        try {
+            Json.deleteIndexFromJson(tableCurrentSales, Json.getSalesFileLocation(), 2);
+        } catch (IOException ex) {
+            Logger.getLogger(SummariesDialog.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Erro ao cancelar compra!", "ERRO!", JOptionPane.ERROR_MESSAGE);
 
-    }//GEN-LAST:event_buttonDeleteActionPerformed
+        }
+    }//GEN-LAST:event_buttonCancelActionPerformed
 
-    private void buttonSearch1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSearch1ActionPerformed
+    private void buttonRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonRefreshActionPerformed
+        try {
+            Json.refreshSummariesTables(tableCurrentSales, tableCompletedSales);
+            JOptionPane.showMessageDialog(null, "Tabelas atualizadas!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
-    }//GEN-LAST:event_buttonSearch1ActionPerformed
+        } catch (IOException ex) {
+            Logger.getLogger(SummariesDialog.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Erro ao atualizar tabela! (nenhuma venda foi realizada ainda)",
+                    "ERRO!", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_buttonRefreshActionPerformed
 
     private void buttonSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSearchActionPerformed
-
+        try {
+            Search.searchItemOnTable(tableCurrentSales, fieldSearchCurrent.getText(), 2);
+        } catch (IOException ex) {
+            Logger.getLogger(SummariesDialog.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Erro ao pesquisar! (nenhuma venda foi realizada ainda)",
+                    "ERRO!", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_buttonSearchActionPerformed
 
-    private void buttonSearch2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSearch2ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_buttonSearch2ActionPerformed
+    private void buttonSearchCompletedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSearchCompletedActionPerformed
+        try {
+            Search.searchItemOnTable(tableCompletedSales, fieldSearchCompleted.getText(), 3);
+        } catch (IOException ex) {
+            Logger.getLogger(SummariesDialog.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Erro ao pesquisar! (nenhuma venda foi realizada ainda)",
+                    "ERRO!", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_buttonSearchCompletedActionPerformed
 
-    private void buttonSearch3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSearch3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_buttonSearch3ActionPerformed
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        try {
+            Json.refreshSummariesTables(tableCurrentSales, tableCompletedSales);
+        } catch (IOException ex) {
+            Logger.getLogger(SummariesDialog.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Erro ao atualizar tabela! (nenhuma venda foi realizada ainda)",
+                    "ERRO!", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_formWindowOpened
+
+    private void tableCurrentSalesMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableCurrentSalesMousePressed
+        if (!SwingUtilities.isRightMouseButton(evt)) {
+            return;
+        }
+
+        int row = tableCurrentSales.rowAtPoint(evt.getPoint());
+
+        if (row < 0) {
+            return;
+        }
+
+        tableCurrentSales.setRowSelectionInterval(row, row);
+        tableCurrentSales.setFocusable(true);
+        tableCurrentSales.requestFocusInWindow();
+
+        JPopupMenu popupMenu = new JPopupMenu();
+
+        JMenuItem viewItem = new JMenuItem("Visualizar compra");
+        viewItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int saleId = (Integer) tableCurrentSales.getValueAt(row, 0);
+
+                Sale sale = null;
+
+                try {
+                    sale = (Sale) Json.returnRowAsObject(saleId, 2);
+                    System.out.println(sale);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(null, "ERRO AO ABRIR PAINEL DE VISUALIZAÇÃO!", "ERRO!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                selectedSale = sale;
+
+                System.out.println("ID PEGO COM SUCESSO " + selectedSale.getId());
+
+                ModalViewCurrentSale modalView = new ModalViewCurrentSale(SummariesDialog.this, true);
+                modalView.setVisible(true);
+            }
+        });
+
+        popupMenu.add(viewItem);
+        popupMenu.show(tableCurrentSales, evt.getX(), evt.getY());
+    }//GEN-LAST:event_tableCurrentSalesMousePressed
+
+    private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
+        try {
+            Json.refreshSummariesTables(tableCurrentSales, tableCompletedSales);
+        } catch (IOException ex) {
+            Logger.getLogger(SummariesDialog.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }//GEN-LAST:event_formWindowGainedFocus
+
+    private void tableCompletedSalesMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableCompletedSalesMousePressed
+        if (!SwingUtilities.isRightMouseButton(evt)) {
+            return;
+        }
+
+        int row = tableCompletedSales.rowAtPoint(evt.getPoint());
+
+        if (row < 0) {
+            return;
+        }
+
+        tableCompletedSales.setRowSelectionInterval(row, row);
+        tableCompletedSales.setFocusable(true);
+        tableCompletedSales.requestFocusInWindow();
+
+        JPopupMenu popupMenu = new JPopupMenu();
+
+        JMenuItem viewItem = new JMenuItem("Visualizar compra");
+        viewItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int saleId = (Integer) tableCompletedSales.getValueAt(row, 0);
+
+                Sale sale = null;
+
+                try {
+                    sale = (Sale) Json.returnRowAsObject(saleId, 3);
+                    System.out.println(sale);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(null, "ERRO AO ABRIR PAINEL DE VISUALIZAÇÃO!", "ERRO!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                selectedSale = sale;
+
+                System.out.println("ID PEGO COM SUCESSO " + selectedSale.getId());
+
+                ModalViewCompletedSale modalView = new ModalViewCompletedSale(SummariesDialog.this, true);
+                modalView.setVisible(true);
+            }
+        });
+
+        popupMenu.add(viewItem);
+        popupMenu.show(tableCompletedSales, evt.getX(), evt.getY());
+
+    }//GEN-LAST:event_tableCompletedSalesMousePressed
 
     /**
      * @param args the command line arguments
@@ -308,7 +481,7 @@ public class SummariesDialog extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                SummariesDialog dialog = new SummariesDialog(new javax.swing.JFrame(), true);
+                SummariesDialog dialog = new SummariesDialog(new javax.swing.JDialog(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -321,20 +494,19 @@ public class SummariesDialog extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton buttonDelete;
+    private javax.swing.JButton buttonCancel;
+    private javax.swing.JButton buttonRefresh;
     private javax.swing.JButton buttonSearch;
-    private javax.swing.JButton buttonSearch1;
-    private javax.swing.JButton buttonSearch2;
-    private javax.swing.JButton buttonSearch3;
-    private javax.swing.JTextField fieldSearch;
-    private javax.swing.JTextField fieldSearch1;
+    private javax.swing.JButton buttonSearchCompleted;
+    private javax.swing.JTextField fieldSearchCompleted;
+    private javax.swing.JTextField fieldSearchCurrent;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable tableRegistereds;
-    private javax.swing.JTable tableRegistereds1;
+    private javax.swing.JTable tableCompletedSales;
+    private javax.swing.JTable tableCurrentSales;
     // End of variables declaration//GEN-END:variables
 }

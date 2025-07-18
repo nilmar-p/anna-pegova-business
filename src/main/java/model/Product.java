@@ -11,7 +11,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import utils.Json;
 
-public class Item {
+public class Product {
 
     @JsonProperty("id")
     private int id;
@@ -29,7 +29,7 @@ public class Item {
     private double price;
 
     @JsonProperty("margin")
-    private double margin;
+    private int margin;
 
     @JsonProperty("total")
     private double total;
@@ -38,17 +38,15 @@ public class Item {
     private double profit;
 
     @JsonCreator
-    public Item(@JsonProperty("name") String name, @JsonProperty("volume") int volume,
+    public Product(@JsonProperty("name") String name, @JsonProperty("volume") int volume,
             @JsonProperty("price") double price, @JsonProperty("amount") int amount,
-            @JsonProperty("margin") double margin) {
-        this.id = generateUniqueClientId();
+            @JsonProperty("margin") int margin) {
+        this.setId(generateUniqueClientId());
         this.name = name.trim().isEmpty() ? "NOME VAZIO" : name.trim().toUpperCase();
         this.volume = volume < 1 ? 1 : volume;
         this.amount = amount < 1 ? 1 : amount;
         this.price = price < 1 ? 1 : price;
-        this.margin = margin < 0 ? 1 : margin;
-        this.setTotal();
-        this.setProfit();
+        this.setMargin(margin);
     }
 
     //
@@ -60,7 +58,7 @@ public class Item {
             Path fileLocation = Json.getProductsFileLocation();
             Files.createDirectories(fileLocation.getParent());
 
-            List<Item> products = new ArrayList<>();
+            List<Product> products = new ArrayList<>();
 
             int newId;
             boolean idExists;
@@ -69,7 +67,7 @@ public class Item {
                 newId = ThreadLocalRandom.current().nextInt(10000, 99999);
                 idExists = false;
 
-                for (Item product : products) {
+                for (Product product : products) {
                     if (product.getId() == newId) {
                         idExists = true;
                         break;
@@ -102,7 +100,7 @@ public class Item {
         return price;
     }
 
-    public double getMargin() {
+    public int getMargin() {
         return margin;
     }
 
@@ -119,6 +117,10 @@ public class Item {
     }
 
     //
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -132,7 +134,9 @@ public class Item {
     }
 
     public void setMargin(int margin) {
-        this.margin = margin;
+        this.margin = margin < 0 ? 1 : margin;
+        this.setTotal();
+        this.setProfit();
     }
 
     public void setAmount(int amount) {
@@ -144,17 +148,11 @@ public class Item {
     }
 
     public void setProfit() {
-        this.profit = this.total * (this.margin / 100);
+        this.profit = this.total * ((double) this.margin / 100);
     }
 
     @Override
     public String toString() {
-        return String.format(
-                "Item {\n"
-                + "  Name   : %s\n"
-                + "  Volume : %.2f\n"
-                + "  Price  : %.2f\n"
-                + "  Margin : %.2f%%\n"
-                + "}", name, volume, price, margin);
+        return String.format("Item{name='%s', volume=%d, price=%.2f, margin=%d%%}", name, volume, price, margin);
     }
 }

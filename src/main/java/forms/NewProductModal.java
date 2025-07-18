@@ -2,7 +2,7 @@ package forms;
 
 import java.io.IOException;
 import javax.swing.JOptionPane;
-import model.Item;
+import model.Product;
 import utils.Json;
 import utils.Mask;
 
@@ -10,12 +10,12 @@ import utils.Mask;
  *
  * @author xnilm
  */
-public class NewItemModal extends javax.swing.JDialog {
+public class NewProductModal extends javax.swing.JDialog {
 
     /**
      * Creates new form NewItemModal
      */
-    public NewItemModal(java.awt.Dialog parent, boolean modal) {
+    public NewProductModal(java.awt.Dialog parent, boolean modal) {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(null);
@@ -53,14 +53,14 @@ public class NewItemModal extends javax.swing.JDialog {
         buttonFinish.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("NOVO ITEM");
+        setTitle("NOVO PRODUTO");
 
         jPanel1.setBackground(new java.awt.Color(14, 171, 170));
 
         jLabel1.setFont(new java.awt.Font("Segoe UI Semibold", 0, 32)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("NOVO ITEM");
+        jLabel1.setText("NOVO PRODUTO");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -89,7 +89,7 @@ public class NewItemModal extends javax.swing.JDialog {
         jLabel4.setForeground(new java.awt.Color(51, 51, 51));
         jLabel4.setText("Preço un. (R$):");
 
-        spinnerPrice.setModel(new javax.swing.SpinnerNumberModel(0, 0, null, 1));
+        spinnerPrice.setModel(new javax.swing.SpinnerNumberModel(0.0d, 0.0d, null, 1.0d));
 
         jLabel5.setFont(new java.awt.Font("Segoe UI Semibold", 0, 18)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(51, 51, 51));
@@ -207,9 +207,9 @@ public class NewItemModal extends javax.swing.JDialog {
             return;
         }
 
-        Item newItem = null;
+        Product newItem = null;
         try {
-            newItem = new Item(
+            newItem = new Product(
                     fieldName.getText(),
                     ((Number) spinnerVolume.getValue()).intValue(),
                     ((Number) spinnerPrice.getValue()).doubleValue(),
@@ -217,7 +217,7 @@ public class NewItemModal extends javax.swing.JDialog {
                     ((Number) spinnerMargin.getValue()).intValue()
             );
         } catch (Exception e) {
-            System.out.println(e);
+            JOptionPane.showMessageDialog(null, "ERRO AO CADASTRAR PRODUTO!", "ERRO!", JOptionPane.ERROR_MESSAGE);
         }
 
         try {
@@ -225,6 +225,7 @@ public class NewItemModal extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(null, "PRODUTO CADASTRADO COM SUCESSO!", "Operação concluída", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "ERRO AO CADASTRAR PRODUTO!", "ERRO!", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         dispose();
@@ -247,20 +248,21 @@ public class NewItemModal extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(NewItemModal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(NewProductModal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(NewItemModal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(NewProductModal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(NewItemModal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(NewProductModal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(NewItemModal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(NewProductModal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                NewItemModal dialog = new NewItemModal(new javax.swing.JDialog(), true);
+                NewProductModal dialog = new NewProductModal(new javax.swing.JDialog(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

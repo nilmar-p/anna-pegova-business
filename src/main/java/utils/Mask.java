@@ -1,5 +1,6 @@
 package utils;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -7,10 +8,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
-import model.Client;
-import model.Item;
+import model.Product;
 
 public class Mask {
+
+    //
+    public static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
     public static boolean isValidForm(JTextField fieldName, JSpinner spinnerVolume, JSpinner spinnerPrice,
             JSpinner spinnerAmount, JSpinner spinnerMargin) {
@@ -24,7 +27,7 @@ public class Mask {
             return false;
         }
 
-        if ((int) spinnerPrice.getValue() <= 0) {
+        if ((double) spinnerPrice.getValue() <= 0.0) {
             JOptionPane.showMessageDialog(null, "Preço não pode ser 0!", "ERRO!", JOptionPane.ERROR_MESSAGE);
             return false;
         }
@@ -48,7 +51,7 @@ public class Mask {
             JSpinner spinnerAmount,
             JSpinner spinnerDiscountValue,
             JLabel labelDiscountValue,
-            List<Item> productsList
+            List<Product> productsList
     ) {
         SpinnerNumberModel defaultModel = new SpinnerNumberModel(1, 1, null, 1);
         spinnerDiscountValue.setModel(defaultModel);
@@ -91,4 +94,5 @@ public class Mask {
             }
         }
     }
+
 }
