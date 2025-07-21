@@ -11,6 +11,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import model.Sale;
 import utils.Json;
+import utils.Mask;
 import utils.Search;
 
 /**
@@ -311,6 +312,7 @@ public class SummariesDialog extends javax.swing.JDialog {
 
     private void buttonRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonRefreshActionPerformed
         try {
+            Mask.clearSearchFieldsSummaries(fieldSearchCurrent, fieldSearchCompleted);
             Json.refreshSummariesTables(tableCurrentSales, tableCompletedSales);
             JOptionPane.showMessageDialog(null, "Tabelas atualizadas!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
@@ -326,7 +328,7 @@ public class SummariesDialog extends javax.swing.JDialog {
             Search.searchItemOnTable(tableCurrentSales, fieldSearchCurrent.getText(), 2);
         } catch (IOException ex) {
             Logger.getLogger(SummariesDialog.class.getName()).log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(null, "Erro ao pesquisar! (nenhuma venda foi realizada ainda)",
+            JOptionPane.showMessageDialog(null, "Erro ao pesquisar!",
                     "ERRO!", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_buttonSearchActionPerformed

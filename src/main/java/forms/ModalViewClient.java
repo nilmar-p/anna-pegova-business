@@ -54,7 +54,6 @@ public class ModalViewClient extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("VISUALIZAR CLIENTE");
-        setPreferredSize(new java.awt.Dimension(600, 434));
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
@@ -108,23 +107,32 @@ public class ModalViewClient extends javax.swing.JDialog {
         jLabel12.setForeground(new java.awt.Color(51, 51, 51));
         jLabel12.setText("CPF:");
 
-        fieldName.setFont(new java.awt.Font("Segoe UI Variable", 0, 18)); // NOI18N
+        fieldName.setFont(new java.awt.Font("Segoe UI Variable", 0, 16)); // NOI18N
+        fieldName.setForeground(new java.awt.Color(51, 51, 51));
 
-        fieldPhone.setFont(new java.awt.Font("Segoe UI Variable", 0, 18)); // NOI18N
+        fieldPhone.setFont(new java.awt.Font("Segoe UI Variable", 0, 16)); // NOI18N
+        fieldPhone.setForeground(new java.awt.Color(51, 51, 51));
 
-        fieldCpf.setFont(new java.awt.Font("Segoe UI Variable", 0, 18)); // NOI18N
+        fieldCpf.setFont(new java.awt.Font("Segoe UI Variable", 0, 16)); // NOI18N
+        fieldCpf.setForeground(new java.awt.Color(51, 51, 51));
 
-        fieldCity.setFont(new java.awt.Font("Segoe UI Variable", 0, 18)); // NOI18N
+        fieldCity.setFont(new java.awt.Font("Segoe UI Variable", 0, 16)); // NOI18N
+        fieldCity.setForeground(new java.awt.Color(51, 51, 51));
 
-        fieldStreet.setFont(new java.awt.Font("Segoe UI Variable", 0, 18)); // NOI18N
+        fieldStreet.setFont(new java.awt.Font("Segoe UI Variable", 0, 16)); // NOI18N
+        fieldStreet.setForeground(new java.awt.Color(51, 51, 51));
 
-        fieldHouseNumber.setFont(new java.awt.Font("Segoe UI Variable", 0, 18)); // NOI18N
+        fieldHouseNumber.setFont(new java.awt.Font("Segoe UI Variable", 0, 16)); // NOI18N
+        fieldHouseNumber.setForeground(new java.awt.Color(51, 51, 51));
 
-        fieldComplement.setFont(new java.awt.Font("Segoe UI Variable", 0, 18)); // NOI18N
+        fieldComplement.setFont(new java.awt.Font("Segoe UI Variable", 0, 16)); // NOI18N
+        fieldComplement.setForeground(new java.awt.Color(51, 51, 51));
 
-        fieldNeighborhood.setFont(new java.awt.Font("Segoe UI Variable", 0, 18)); // NOI18N
+        fieldNeighborhood.setFont(new java.awt.Font("Segoe UI Variable", 0, 16)); // NOI18N
+        fieldNeighborhood.setForeground(new java.awt.Color(51, 51, 51));
 
-        fieldCep.setFont(new java.awt.Font("Segoe UI Variable", 0, 18)); // NOI18N
+        fieldCep.setFont(new java.awt.Font("Segoe UI Variable", 0, 16)); // NOI18N
+        fieldCep.setForeground(new java.awt.Color(51, 51, 51));
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);

@@ -105,6 +105,11 @@ public class Search {
                 throw new AssertionError();
         }
 
+        if (tableRegistereds.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(null, "Nenhum resultado para a pesquisa!",
+                    "Atenção!", JOptionPane.WARNING_MESSAGE);
+        }
+
     }
 
     public static void searchClientsOnTable(JTable tableRegistereds, String search, String filter) throws IOException {
@@ -160,6 +165,11 @@ public class Search {
             default:
                 JOptionPane.showMessageDialog(null, "Erro na pesquisa!", "ERRO!", JOptionPane.ERROR_MESSAGE);
                 throw new AssertionError();
+        }
+
+        if (tableRegistereds.getRowCount() == 0) {
+            JOptionPane.showMessageDialog(null, "Nenhum resultado para a pesquisa!",
+                    "Atenção!", JOptionPane.WARNING_MESSAGE);
         }
 
     }

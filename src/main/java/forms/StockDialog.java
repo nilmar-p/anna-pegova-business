@@ -11,6 +11,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import model.Product;
 import utils.Json;
+import utils.Mask;
 import utils.Search;
 
 public class StockDialog extends javax.swing.JDialog {
@@ -37,7 +38,7 @@ public class StockDialog extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        buttonSearch1 = new javax.swing.JButton();
+        buttonRefresh = new javax.swing.JButton();
         fieldSearch = new javax.swing.JTextField();
         buttonSearch = new javax.swing.JButton();
         comboFilter = new javax.swing.JComboBox<>();
@@ -64,19 +65,19 @@ public class StockDialog extends javax.swing.JDialog {
             }
         });
 
-        buttonSearch1.setBackground(new java.awt.Color(88, 154, 89));
-        buttonSearch1.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        buttonSearch1.setForeground(new java.awt.Color(255, 255, 255));
-        buttonSearch1.setText("A");
-        buttonSearch1.setToolTipText("Recarregar");
-        buttonSearch1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        buttonSearch1.setFocusPainted(false);
-        buttonSearch1.setMaximumSize(new java.awt.Dimension(36, 36));
-        buttonSearch1.setMinimumSize(new java.awt.Dimension(36, 36));
-        buttonSearch1.setPreferredSize(new java.awt.Dimension(36, 36));
-        buttonSearch1.addActionListener(new java.awt.event.ActionListener() {
+        buttonRefresh.setBackground(new java.awt.Color(88, 154, 89));
+        buttonRefresh.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        buttonRefresh.setForeground(new java.awt.Color(255, 255, 255));
+        buttonRefresh.setText("A");
+        buttonRefresh.setToolTipText("Recarregar");
+        buttonRefresh.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        buttonRefresh.setFocusPainted(false);
+        buttonRefresh.setMaximumSize(new java.awt.Dimension(36, 36));
+        buttonRefresh.setMinimumSize(new java.awt.Dimension(36, 36));
+        buttonRefresh.setPreferredSize(new java.awt.Dimension(36, 36));
+        buttonRefresh.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonSearch1ActionPerformed(evt);
+                buttonRefreshActionPerformed(evt);
             }
         });
 
@@ -195,7 +196,7 @@ public class StockDialog extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(fieldSearch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(buttonSearch1, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(buttonRefresh, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(buttonSearch)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -210,7 +211,7 @@ public class StockDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                     .addComponent(comboFilter, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(buttonSearch1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(buttonRefresh, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(fieldSearch, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(buttonSearch, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -224,22 +225,26 @@ public class StockDialog extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void buttonSearch1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSearch1ActionPerformed
+    private void buttonRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonRefreshActionPerformed
         try {
+            Mask.clearSearchField(fieldSearch);
             Json.refreshProductsTable(tableRegistereds);
-            fieldSearch.setText("");
             JOptionPane.showMessageDialog(null, "Tabela atualizada!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (IOException ex) {
             Logger.getLogger(StockDialog.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Erro ao atualizar tabela!", "ERRO!", JOptionPane.ERROR_MESSAGE);
+
         }
-    }//GEN-LAST:event_buttonSearch1ActionPerformed
+    }//GEN-LAST:event_buttonRefreshActionPerformed
 
     private void buttonSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSearchActionPerformed
         try {
             Search.searchItemOnTable(tableRegistereds, fieldSearch.getText(), 0);
         } catch (IOException ex) {
             Logger.getLogger(StockDialog.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Erro ao pesquisar!",
+                    "ERRO!", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_buttonSearchActionPerformed
 
@@ -391,8 +396,8 @@ public class StockDialog extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton buttonDelete;
     private javax.swing.JButton buttonNewItem;
+    private javax.swing.JButton buttonRefresh;
     private javax.swing.JButton buttonSearch;
-    private javax.swing.JButton buttonSearch1;
     private javax.swing.JComboBox<String> comboFilter;
     private javax.swing.JTextField fieldSearch;
     private javax.swing.JLabel jLabel1;

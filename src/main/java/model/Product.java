@@ -44,7 +44,7 @@ public class Product {
         this.setId(generateUniqueClientId());
         this.name = name.trim().isEmpty() ? "NOME VAZIO" : name.trim().toUpperCase();
         this.volume = volume < 1 ? 1 : volume;
-        this.amount = amount < 1 ? 1 : amount;
+        this.amount = amount < 0 ? 0 : amount;
         this.price = price < 1 ? 1 : price;
         this.setMargin(margin);
     }

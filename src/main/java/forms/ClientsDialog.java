@@ -12,6 +12,7 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import model.Client;
 import utils.Json;
+import utils.Mask;
 import utils.Search;
 
 public class ClientsDialog extends javax.swing.JDialog {
@@ -221,12 +222,14 @@ public class ClientsDialog extends javax.swing.JDialog {
 
     private void buttonRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonRefreshActionPerformed
         try {
+            Mask.clearSearchField(fieldSearch);
             Json.refreshClientsTable(tableRegistereds);
-            fieldSearch.setText("");
             JOptionPane.showMessageDialog(null, "Tabela atualizada!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (IOException ex) {
             Logger.getLogger(ClientsDialog.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Erro ao atualizar tabela!", "ERRO!", JOptionPane.ERROR_MESSAGE);
+
         }
     }//GEN-LAST:event_buttonRefreshActionPerformed
 
@@ -235,6 +238,8 @@ public class ClientsDialog extends javax.swing.JDialog {
             Search.searchClientsOnTable(tableRegistereds, fieldSearch.getText().toUpperCase(), comboFilter.getSelectedItem().toString());
         } catch (IOException ex) {
             Logger.getLogger(ClientsDialog.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Erro ao pesquisar!",
+                    "ERRO!", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_buttonSearchActionPerformed
 

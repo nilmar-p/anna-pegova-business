@@ -2,12 +2,14 @@ package utils;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
+import model.Client;
 import model.Product;
 
 public class Mask {
@@ -32,11 +34,10 @@ public class Mask {
             return false;
         }
 
-        if ((int) spinnerAmount.getValue() <= 0) {
-            JOptionPane.showMessageDialog(null, "Quantidade não pode ser 0!", "ERRO!", JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-
+//        if ((int) spinnerAmount.getValue() <= 0) {
+//            JOptionPane.showMessageDialog(null, "Quantidade não pode ser 0!", "ERRO!", JOptionPane.ERROR_MESSAGE);
+//            return false;
+//        }
         if ((int) spinnerMargin.getValue() <= 0) {
             JOptionPane.showMessageDialog(null, "Margem de lucro não pode ser 0!", "ERRO!", JOptionPane.ERROR_MESSAGE);
             return false;
@@ -45,54 +46,42 @@ public class Mask {
         return true;
     }
 
-    public static void refreshDiscountSpinner(
-            JComboBox<?> comboDiscount,
-            JComboBox<String> comboProduct,
-            JSpinner spinnerAmount,
-            JSpinner spinnerDiscountValue,
-            JLabel labelDiscountValue,
-            List<Product> productsList
-    ) {
-        SpinnerNumberModel defaultModel = new SpinnerNumberModel(1, 1, null, 1);
-        spinnerDiscountValue.setModel(defaultModel);
+    public static void clearSearchFieldsSummaries(JTextField searchCurrent, JTextField searchCompleted) {
+        searchCurrent.setText("");
+        searchCompleted.setText("");
+    }
 
-        switch (comboDiscount.getSelectedIndex()) {
+    public static void clearSearchField(JTextField searchField) {
+        searchField.setText("");
+    }
+
+    public static void refreshSaleComboBox(JComboBox<String> comboBox, List<?> filteredItems, int type) {
+        comboBox.removeAllItems();
+        DefaultComboBoxModel<String> model = new DefaultComboBoxModel<>();
+
+        switch (type) {
+            case 0 -> {
+                for (Object obj : filteredItems) {
+                    if (obj instanceof Product product && product.getAmount() > 0) {
+                        model.addElement(String.format("%05d - %s", product.getId(), product.getName()));
+                    }
+                }
+            }
+
             case 1 -> {
-                labelDiscountValue.setEnabled(true);
-                spinnerDiscountValue.setEnabled(true);
-
-                SpinnerNumberModel model = new SpinnerNumberModel(1, 1, 100, 1);
-                spinnerDiscountValue.setModel(model);
-            }
-            case 2 -> {
-                labelDiscountValue.setEnabled(true);
-                spinnerDiscountValue.setEnabled(true);
-
-                int selected = comboProduct.getSelectedIndex();
-                if (selected < 0 || selected >= productsList.size()) {
-                    JOptionPane.showMessageDialog(null, "Selecione um produto válido antes de aplicar o desconto!", "Aviso", JOptionPane.WARNING_MESSAGE);
-                    spinnerDiscountValue.setModel(defaultModel);
-                    return;
+                for (Object obj : filteredItems) {
+                    if (obj instanceof Client client) {
+                        model.addElement(String.format("%05d - %s", client.getId(), client.getName()));
+                    }
                 }
-
-                double maxDiscount = productsList.get(selected).getPrice() * ((Number) spinnerAmount.getValue()).intValue();
-
-                if (maxDiscount != productsList.get(selected).getTotal()) {
-                    JOptionPane.showMessageDialog(null, "Desconto maior que o total!", "ERRO!", JOptionPane.ERROR_MESSAGE);
-                    spinnerDiscountValue.setModel(defaultModel);
-                    return;
-                }
-
-                SpinnerNumberModel model = new SpinnerNumberModel(1, 1, maxDiscount, 1);
-                spinnerDiscountValue.setModel(model);
             }
-            default -> {
-                SpinnerNumberModel model = new SpinnerNumberModel(0, 0, 0, 0);
-                spinnerDiscountValue.setModel(model);
-                labelDiscountValue.setEnabled(false);
-                spinnerDiscountValue.setEnabled(false);
-            }
+
+            default ->
+                throw new IllegalArgumentException("Tipo inválido: " + type);
         }
+
+        comboBox.setModel(model);
+        comboBox.setSelectedItem(null);
     }
 
 }

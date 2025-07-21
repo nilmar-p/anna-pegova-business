@@ -1,5 +1,8 @@
 package utils;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -7,9 +10,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 import model.Client;
 import model.Product;
 import model.Sale;
+import static utils.Json.getProductsFileLocation;
 
 public class SaleFunctions {
 
@@ -169,4 +175,25 @@ public class SaleFunctions {
         return dates;
     }
 
+    public static void addItemOnSaleSummary(JTable tableSaleSummary, int itemId, int itemAmount,
+            double itemTotal) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        DefaultTableModel saleSummaryTableModel = (DefaultTableModel) tableSaleSummary.getModel();
+
+        List<Product> products = mapper.readValue(new File(String.valueOf(getProductsFileLocation())), new TypeReference<List<Product>>() {
+        });
+
+        for (Product product : products) {
+
+            if (product.getId() == itemId) {
+                Object[] productA = {
+                    product.getId(),
+                    product.getName(),
+                    itemAmount,
+                    itemTotal
+                };
+                saleSummaryTableModel.addRow(productA);
+            }
+        }
+    }
 }

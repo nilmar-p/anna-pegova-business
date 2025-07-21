@@ -203,6 +203,7 @@ public class Json {
             };
             completedSalesTableModel.addRow(saleA);
         }
+        
     }
 
     public static void refreshClientsTable(JTable clientsTable) throws IOException {

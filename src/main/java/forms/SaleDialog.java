@@ -3,17 +3,21 @@ package forms;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import enums.DiscountType;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableModel;
 import model.Client;
 import model.Product;
 import utils.Json;
@@ -26,9 +30,11 @@ import utils.SaleFunctions;
  */
 public class SaleDialog extends javax.swing.JDialog {
 
-    private List<Product> productsList;
-    private List<Client> clientsList;
     private String slc = "Selecione";
+    private final List<Product> filteredProducts = new ArrayList<>();
+    private List<Client> filteredClients = new ArrayList<>();
+
+    private List<Product> selectedProducts = new ArrayList<>();
 
     //
     public SaleDialog(java.awt.Dialog parent, boolean modal) {
@@ -51,25 +57,22 @@ public class SaleDialog extends javax.swing.JDialog {
         jLabel1 = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        comboProduct = new javax.swing.JComboBox<>();
+        comboProducts = new javax.swing.JComboBox<>();
         jLabel3 = new javax.swing.JLabel();
         spinnerAmount = new javax.swing.JSpinner();
         jLabel4 = new javax.swing.JLabel();
-        comboClient = new javax.swing.JComboBox<>();
-        jLabel5 = new javax.swing.JLabel();
-        comboDiscount = new javax.swing.JComboBox<>();
-        labelDiscountValue = new javax.swing.JLabel();
-        spinnerDiscountValue = new javax.swing.JSpinner();
-        jLabel6 = new javax.swing.JLabel();
-        dateBillingDate = new com.toedter.calendar.JDateChooser();
-        checkInstallment = new javax.swing.JCheckBox();
-        spinnerInstallment = new javax.swing.JSpinner();
-        labelInstallment = new javax.swing.JLabel();
+        comboClients = new javax.swing.JComboBox<>();
+        buttonAddProduct = new javax.swing.JButton();
         buttonProceed = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tableSaleSummary = new javax.swing.JTable();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
+        fieldSaleTotal = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("REALIZAR VENDA");
-        setPreferredSize(new java.awt.Dimension(560, 650));
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
@@ -82,7 +85,8 @@ public class SaleDialog extends javax.swing.JDialog {
         jLabel1.setFont(new java.awt.Font("Segoe UI Semibold", 0, 32)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel1.setText("VENDER");
+        jLabel1.setText("PAINEL DE VENDA");
+        jLabel1.setPreferredSize(new java.awt.Dimension(123, 65));
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -92,18 +96,28 @@ public class SaleDialog extends javax.swing.JDialog {
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 65, Short.MAX_VALUE)
+            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
+
+        jPanel2.addAncestorListener(new javax.swing.event.AncestorListener() {
+            public void ancestorAdded(javax.swing.event.AncestorEvent evt) {
+                jPanel2AncestorAdded(evt);
+            }
+            public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
+            }
+            public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
+            }
+        });
 
         jLabel2.setFont(new java.awt.Font("Segoe UI Semibold", 0, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(51, 51, 51));
         jLabel2.setText("Produto:");
 
-        comboProduct.setFont(new java.awt.Font("Segoe UI Variable", 0, 14)); // NOI18N
-        comboProduct.setForeground(new java.awt.Color(51, 51, 51));
-        comboProduct.addActionListener(new java.awt.event.ActionListener() {
+        comboProducts.setFont(new java.awt.Font("Segoe UI Variable", 0, 14)); // NOI18N
+        comboProducts.setForeground(new java.awt.Color(51, 51, 51));
+        comboProducts.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                comboProductActionPerformed(evt);
+                comboProductsActionPerformed(evt);
             }
         });
 
@@ -122,99 +136,51 @@ public class SaleDialog extends javax.swing.JDialog {
         jLabel4.setForeground(new java.awt.Color(51, 51, 51));
         jLabel4.setText("Cliente:");
 
-        comboClient.setFont(new java.awt.Font("Segoe UI Variable", 0, 14)); // NOI18N
-        comboClient.setForeground(new java.awt.Color(51, 51, 51));
-        comboClient.addActionListener(new java.awt.event.ActionListener() {
+        comboClients.setFont(new java.awt.Font("Segoe UI Variable", 0, 14)); // NOI18N
+        comboClients.setForeground(new java.awt.Color(51, 51, 51));
+        comboClients.setPreferredSize(new java.awt.Dimension(72, 35));
+        comboClients.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                comboClientActionPerformed(evt);
+                comboClientsActionPerformed(evt);
             }
         });
 
-        jLabel5.setFont(new java.awt.Font("Segoe UI Semibold", 0, 18)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(51, 51, 51));
-        jLabel5.setText("Desconto:");
-
-        comboDiscount.setFont(new java.awt.Font("Segoe UI Variable", 0, 14)); // NOI18N
-        comboDiscount.setForeground(new java.awt.Color(51, 51, 51));
-        comboDiscount.addActionListener(new java.awt.event.ActionListener() {
+        buttonAddProduct.setBackground(new java.awt.Color(88, 154, 89));
+        buttonAddProduct.setFont(new java.awt.Font("Segoe UI Semibold", 0, 18)); // NOI18N
+        buttonAddProduct.setForeground(new java.awt.Color(255, 255, 255));
+        buttonAddProduct.setText("ADICIONAR (+)");
+        buttonAddProduct.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        buttonAddProduct.setFocusPainted(false);
+        buttonAddProduct.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                comboDiscountActionPerformed(evt);
+                buttonAddProductActionPerformed(evt);
             }
         });
-
-        labelDiscountValue.setFont(new java.awt.Font("Segoe UI Semibold", 0, 18)); // NOI18N
-        labelDiscountValue.setForeground(new java.awt.Color(51, 51, 51));
-        labelDiscountValue.setText("Valor:");
-        labelDiscountValue.setAutoscrolls(true);
-        labelDiscountValue.setEnabled(false);
-
-        spinnerDiscountValue.setModel(new javax.swing.SpinnerNumberModel(0.0d, 0.0d, null, 1.0d));
-        spinnerDiscountValue.setAutoscrolls(true);
-        spinnerDiscountValue.setEnabled(false);
-
-        jLabel6.setFont(new java.awt.Font("Segoe UI Semibold", 0, 18)); // NOI18N
-        jLabel6.setForeground(new java.awt.Color(51, 51, 51));
-        jLabel6.setText("Data de cobrança:");
-
-        checkInstallment.setFont(new java.awt.Font("Segoe UI Semibold", 0, 14)); // NOI18N
-        checkInstallment.setForeground(new java.awt.Color(51, 51, 51));
-        checkInstallment.setText("Parcelamento");
-        checkInstallment.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                checkInstallmentActionPerformed(evt);
-            }
-        });
-
-        spinnerInstallment.setEnabled(false);
-
-        labelInstallment.setFont(new java.awt.Font("Segoe UI Semibold", 0, 14)); // NOI18N
-        labelInstallment.setForeground(new java.awt.Color(51, 51, 51));
-        labelInstallment.setText("N°");
-        labelInstallment.setEnabled(false);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 83, Short.MAX_VALUE)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(comboClients, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(comboProducts, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGap(0, 257, Short.MAX_VALUE)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(buttonAddProduct)
                             .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
                                 .addComponent(jLabel3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(spinnerAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(comboClient, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addGroup(jPanel2Layout.createSequentialGroup()
-                                        .addComponent(comboDiscount, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                        .addComponent(labelDiscountValue)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(spinnerDiscountValue, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                    .addComponent(comboProduct, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
-                        .addGap(14, 14, 14))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(checkInstallment)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(labelInstallment)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(spinnerInstallment, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addComponent(jLabel6)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(dateBillingDate, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(214, 214, 214))))
+                                .addComponent(spinnerAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addGap(14, 14, 14))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -222,32 +188,17 @@ public class SaleDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(comboProduct, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(comboProducts, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(30, 30, 30)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(spinnerAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(30, 30, 30)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(comboClient, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE)
+                    .addComponent(comboClients, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(30, 30, 30)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(comboDiscount, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(labelDiscountValue, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(spinnerDiscountValue, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(30, 30, 30)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(dateBillingDate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 35, Short.MAX_VALUE))
-                .addGap(30, 30, 30)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(checkInstallment)
-                    .addComponent(spinnerInstallment, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(labelInstallment))
+                .addComponent(buttonAddProduct, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -262,52 +213,123 @@ public class SaleDialog extends javax.swing.JDialog {
             }
         });
 
+        tableSaleSummary.setRowHeight(25);
+        tableSaleSummary.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "ID", "PRODUTO", "QTD.", "TOTAL"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tableSaleSummary.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                tableSaleSummaryMousePressed(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tableSaleSummary);
+        if (tableSaleSummary.getColumnModel().getColumnCount() > 0) {
+            tableSaleSummary.getColumnModel().getColumn(0).setMinWidth(50);
+            tableSaleSummary.getColumnModel().getColumn(0).setPreferredWidth(50);
+            tableSaleSummary.getColumnModel().getColumn(0).setMaxWidth(50);
+            tableSaleSummary.getColumnModel().getColumn(3).setMinWidth(80);
+            tableSaleSummary.getColumnModel().getColumn(3).setPreferredWidth(80);
+            tableSaleSummary.getColumnModel().getColumn(3).setMaxWidth(80);
+        }
+
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+        jPanel3.setForeground(new java.awt.Color(255, 255, 255));
+
+        jLabel5.setFont(new java.awt.Font("Segoe UI Semibold", 0, 24)); // NOI18N
+        jLabel5.setForeground(new java.awt.Color(51, 51, 51));
+        jLabel5.setText("TOTAL:");
+
+        jLabel6.setFont(new java.awt.Font("Segoe UI Semibold", 0, 24)); // NOI18N
+        jLabel6.setForeground(new java.awt.Color(51, 51, 51));
+        jLabel6.setText("R$");
+
+        fieldSaleTotal.setFont(new java.awt.Font("Segoe UI Semibold", 0, 24)); // NOI18N
+        fieldSaleTotal.setForeground(new java.awt.Color(51, 51, 51));
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel5)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel6)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(fieldSaleTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(fieldSaleTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
             .addGroup(layout.createSequentialGroup()
-                .addGap(197, 197, 197)
-                .addComponent(buttonProceed, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 592, Short.MAX_VALUE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(buttonProceed, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 55, Short.MAX_VALUE)
-                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(79, 79, 79)
-                .addComponent(buttonProceed, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(25, 25, 25))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(23, 23, 23))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(buttonProceed, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(18, Short.MAX_VALUE))))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void comboClientActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboClientActionPerformed
+    private void comboClientsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboClientsActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_comboClientActionPerformed
-
-    private void comboDiscountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboDiscountActionPerformed
-        Mask.refreshDiscountSpinner(comboDiscount, comboProduct, spinnerAmount,
-                spinnerDiscountValue, labelDiscountValue, productsList);
-    }//GEN-LAST:event_comboDiscountActionPerformed
+    }//GEN-LAST:event_comboClientsActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
-
-        DefaultComboBoxModel<String> modelP = new DefaultComboBoxModel<>();
-        modelP.addElement(slc);
-
-        DefaultComboBoxModel<String> modelC = new DefaultComboBoxModel<>();
-        modelC.addElement(slc);
 
         try {
             String contentP = Files.exists(Json.getProductsFileLocation())
@@ -318,65 +340,92 @@ public class SaleDialog extends javax.swing.JDialog {
                     ? Files.readString(Json.getClientsFileLocation())
                     : "[]";
 
-            productsList = mapper.readValue(contentP, new TypeReference<>() {
-            });
-            clientsList = mapper.readValue(contentC, new TypeReference<>() {
+            List<Product> products = mapper.readValue(contentP, new TypeReference<>() {
             });
 
-            for (Product item : productsList) {
-                modelP.addElement(String.format("%05d - %s", item.getId(), item.getName()));
+            List<Client> clients = mapper.readValue(contentC, new TypeReference<>() {
+            });
+
+            for (Product product : products) {
+                if (product.getAmount() > 0) {
+                    filteredProducts.add(product);
+                }
             }
 
-            for (Client client : clientsList) {
-                modelC.addElement(String.format("%05d - %s", client.getId(), client.getName()));
+            for (Client client : clients) {
+                filteredClients.add(client);
             }
 
-            comboProduct.setModel(modelP);
-            comboClient.setModel(modelC);
-
-            comboProduct.addActionListener(e -> {
-                if (comboProduct.getSelectedIndex() > 0) {
-                    DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) comboProduct.getModel();
-                    if (model.getIndexOf(slc) != -1) {
-                        model.removeElement(slc);
-                    }
-                }
-            });
-
-            comboClient.addActionListener(e -> {
-                if (comboClient.getSelectedIndex() > 0) {
-                    DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) comboClient.getModel();
-                    if (model.getIndexOf(slc) != -1) {
-                        model.removeElement(slc);
-                    }
-                }
-            });
+            Mask.refreshSaleComboBox(comboProducts, filteredProducts, 0);
+            Mask.refreshSaleComboBox(comboClients, filteredClients, 1);
 
         } catch (IOException ex) {
             Logger.getLogger(SaleDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        DefaultComboBoxModel cbm = new DefaultComboBoxModel<>(DiscountType.values());
-        comboDiscount.setModel(cbm);
     }//GEN-LAST:event_formWindowOpened
 
-    private void comboProductActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboProductActionPerformed
-        int selected = comboProduct.getSelectedIndex();
+    private void comboProductsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboProductsActionPerformed
+        if (comboProducts.getItemCount() != filteredProducts.size()) {
+            return;
+        }
 
-        SpinnerNumberModel model = new SpinnerNumberModel(1, 1, productsList.get(selected).getAmount(), 1);
-        spinnerAmount.setModel(model);
+        if (comboProducts.getSelectedItem() == null) {
+            spinnerAmount.setEnabled(false);
+            return;
+        }
 
-        Mask.refreshDiscountSpinner(comboDiscount, comboProduct, spinnerAmount, spinnerDiscountValue, labelDiscountValue, productsList);
-    }//GEN-LAST:event_comboProductActionPerformed
+        int selectedIndex = comboProducts.getSelectedIndex();
+
+        if (selectedIndex < 0 || selectedIndex >= filteredProducts.size()) {
+            spinnerAmount.setEnabled(false);
+            return;
+        }
+
+        Product selected = filteredProducts.get(selectedIndex);
+
+        if (selected.getAmount() <= 0) {
+            spinnerAmount.setEnabled(false);
+            return;
+        }
+
+        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(1, 1, selected.getAmount(), 1);
+        spinnerAmount.setModel(spinnerNumberModel);
+        spinnerAmount.setEnabled(true);
+    }//GEN-LAST:event_comboProductsActionPerformed
 
     private void buttonProceedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonProceedActionPerformed
-        if (comboClient.getSelectedItem().equals(slc) || comboProduct.getSelectedItem().equals(slc)) {
+        if (tableSaleSummary.getRowCount() < 1) {
+            JOptionPane.showMessageDialog(null, "Adicione pelo menos um item antes de prosseguir!", "ERRO!", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        ModalSaleFinalize modalSaleFinalize = new ModalSaleFinalize(SaleDialog.this, true);
+        modalSaleFinalize.setVisible(true);
+    }//GEN-LAST:event_buttonProceedActionPerformed
+
+    private void spinnerAmountStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_spinnerAmountStateChanged
+
+    }//GEN-LAST:event_spinnerAmountStateChanged
+
+    private void buttonAddProductActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonAddProductActionPerformed
+
+        if (comboClients.getSelectedItem() == null || comboProducts.getSelectedItem() == null) {
             JOptionPane.showMessageDialog(null, "Preencha todos os campos!", "ERRO!", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        Product selectedProduct = productsList.get(comboProduct.getSelectedIndex());
-        Client selectedClient = clientsList.get(comboClient.getSelectedIndex());
+        String selectedItem = comboProducts.getSelectedItem().toString();
+        int selectedProductId = Integer.parseInt(selectedItem.substring(0, 5));
+
+        Product selectedProduct = null;
+        for (Product filteredProduct : filteredProducts) {
+            if (filteredProduct.getId() == selectedProductId) {
+                selectedProduct = filteredProduct;
+                break;
+            }
+        }
+
+        filteredProducts.remove(selectedProduct);
 
         int amount = ((Number) spinnerAmount.getValue()).intValue();
         double grossValue = amount * selectedProduct.getPrice();
@@ -386,63 +435,67 @@ public class SaleDialog extends javax.swing.JDialog {
             return;
         }
 
-        double netValue;
-        double discountValue = ((Number) spinnerDiscountValue.getValue()).doubleValue();
-
-        double absoluteDiscount = 0;
-        double percentageDiscount = 0;
-
-        if (comboDiscount.getSelectedIndex() == 1) {
-            percentageDiscount = discountValue;
-            absoluteDiscount = grossValue * (percentageDiscount / 100.0);
-            netValue = grossValue - absoluteDiscount;
-        } else {
-            absoluteDiscount = discountValue;
-            percentageDiscount = (absoluteDiscount / grossValue) * 100.0;
-            netValue = grossValue - absoluteDiscount;
-        }
-
-        if (dateBillingDate == null) {
-            JOptionPane.showMessageDialog(null, "Escolha uma data de cobrança!", "ERRO!", JOptionPane.ERROR_MESSAGE);
+        try {
+            SaleFunctions.addItemOnSaleSummary(tableSaleSummary, selectedProduct.getId(), amount, grossValue);
+        } catch (IOException ex) {
+            Logger.getLogger(SaleDialog.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Erro ao adicionar item no resumo!", "ERRO!", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        Date initialBillingDate = dateBillingDate.getDate();
+        Mask.refreshSaleComboBox(comboProducts, filteredProducts, 0);
+    }//GEN-LAST:event_buttonAddProductActionPerformed
 
-        int numberOfInstallments = ((Number) spinnerInstallment.getValue()).intValue();
-        
-        double installmentValue = netValue / (double) numberOfInstallments;
+    private void jPanel2AncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_jPanel2AncestorAdded
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jPanel2AncestorAdded
 
-        List<Date> allBillingDates = SaleFunctions.allBillingDates(initialBillingDate, numberOfInstallments);
-
-        if (!SaleFunctions.finishSale(selectedProduct.getPrice(), grossValue,
-                amount, absoluteDiscount, percentageDiscount, netValue, installmentValue, selectedProduct, selectedClient,
-                (double) numberOfInstallments, allBillingDates)) {
-            JOptionPane.showMessageDialog(null, "Operação cancelada!", "CANCELAMENTO", JOptionPane.ERROR_MESSAGE);
+    private void tableSaleSummaryMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableSaleSummaryMousePressed
+        if (!SwingUtilities.isRightMouseButton(evt)) {
             return;
         }
 
-        dispose();
-    }//GEN-LAST:event_buttonProceedActionPerformed
+        int row = tableSaleSummary.rowAtPoint(evt.getPoint());
 
-    private void spinnerAmountStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_spinnerAmountStateChanged
-        Mask.refreshDiscountSpinner(comboDiscount, comboProduct, spinnerAmount, spinnerDiscountValue, labelDiscountValue, productsList);
-    }//GEN-LAST:event_spinnerAmountStateChanged
-
-    private void checkInstallmentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkInstallmentActionPerformed
-        SpinnerNumberModel modelFalse = new SpinnerNumberModel(0, 0, 0, 0);
-        SpinnerNumberModel modelTrue = new SpinnerNumberModel(2, 2, 100, 1);
-
-        if (checkInstallment.isSelected()) {
-            spinnerInstallment.setModel(modelTrue);
-            spinnerInstallment.setEnabled(true);
-            labelInstallment.setEnabled(true);
-        } else {
-            spinnerInstallment.setModel(modelFalse);
-            spinnerInstallment.setEnabled(false);
-            labelInstallment.setEnabled(false);
+        if (row < 0) {
+            return;
         }
-    }//GEN-LAST:event_checkInstallmentActionPerformed
+
+        tableSaleSummary.setRowSelectionInterval(row, row);
+        tableSaleSummary.setFocusable(true);
+        tableSaleSummary.requestFocusInWindow();
+
+        JPopupMenu popupMenu = new JPopupMenu();
+
+        JMenuItem removeItem = new JMenuItem("Remover");
+        removeItem.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                int itemId = (Integer) tableSaleSummary.getValueAt(row, 0);
+
+                Product item = null;
+
+                try {
+                    item = (Product) Json.returnRowAsObject(itemId, 0);
+                    System.out.println(item);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(null, "Erro ao remover item!", "ERRO!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                System.out.println("ID PEGO COM SUCESSO" + item.getId());
+                filteredProducts.add(item);
+
+                DefaultTableModel model = (DefaultTableModel) tableSaleSummary.getModel();
+                model.removeRow(row);
+
+                Mask.refreshSaleComboBox(comboProducts, filteredProducts, 0);
+            }
+        });
+
+        popupMenu.add(removeItem);
+        popupMenu.show(tableSaleSummary, evt.getX(), evt.getY());
+
+    }//GEN-LAST:event_tableSaleSummaryMousePressed
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
@@ -484,12 +537,11 @@ public class SaleDialog extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton buttonAddProduct;
     private javax.swing.JButton buttonProceed;
-    private javax.swing.JCheckBox checkInstallment;
-    private javax.swing.JComboBox<String> comboClient;
-    private javax.swing.JComboBox<String> comboDiscount;
-    private javax.swing.JComboBox<String> comboProduct;
-    private com.toedter.calendar.JDateChooser dateBillingDate;
+    private javax.swing.JComboBox<String> comboClients;
+    private javax.swing.JComboBox<String> comboProducts;
+    private javax.swing.JLabel fieldSaleTotal;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -498,11 +550,10 @@ public class SaleDialog extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel6;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
-    private javax.swing.JLabel labelDiscountValue;
-    private javax.swing.JLabel labelInstallment;
     private javax.swing.JSpinner spinnerAmount;
-    private javax.swing.JSpinner spinnerDiscountValue;
-    private javax.swing.JSpinner spinnerInstallment;
+    private javax.swing.JTable tableSaleSummary;
     // End of variables declaration//GEN-END:variables
 }
