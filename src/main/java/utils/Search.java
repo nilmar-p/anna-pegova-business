@@ -68,7 +68,7 @@ public class Search {
                     if (sale.getClientName().startsWith(search)) {
                         Object[] saleA = {
                             sale.getId(),
-                            String.format("%d - %s", sale.getProductId(), sale.getProductName()),
+//                            String.format("%d - %s", sale.getProductId(), sale.getProductName()),
                             String.format("%d - %s", sale.getClientId(), sale.getClientName()),
                             Mask.sdf.format(sale.getNextBillingDate())
                         };
@@ -89,8 +89,8 @@ public class Search {
                     if (sale.getClientName().startsWith(search)) {
                         Object[] saleA = {
                             sale.getId(),
-                            String.format("%d - %s", sale.getProductId(), sale.getProductName()),
-                            String.format("%d - %s", sale.getClientId(), sale.getClientName()),
+//                            String.format("%d - %s", sale.getProductId(), sale.getProductName()),
+//                            String.format("%d - %s", sale.getClientId(), sale.getClientName()),
                             Mask.sdf.format(sale.getNextBillingDate())
                         };
 

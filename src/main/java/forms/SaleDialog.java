@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -20,7 +21,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
 import model.Client;
 import model.Product;
+import model.ProductSold;
 import utils.Json;
+import static utils.Json.getProductsFileLocation;
 import utils.Mask;
 import utils.SaleFunctions;
 
@@ -30,11 +33,25 @@ import utils.SaleFunctions;
  */
 public class SaleDialog extends javax.swing.JDialog {
 
-    private String slc = "Selecione";
+    private static double totalSale;
     private final List<Product> filteredProducts = new ArrayList<>();
-    private List<Client> filteredClients = new ArrayList<>();
+    private final List<Client> filteredClients = new ArrayList<>();
 
-    private List<Product> selectedProducts = new ArrayList<>();
+    private static final List<ProductSold> selectedProducts = new ArrayList<>();
+    private static Client selectedClient;
+    //
+
+    public static List<ProductSold> getSelectedProducts() {
+        return selectedProducts;
+    }
+
+    public static Client getSelectedClient() {
+        return selectedClient;
+    }
+
+    public static double getTotalSale() {
+        return totalSale;
+    }
 
     //
     public SaleDialog(java.awt.Dialog parent, boolean modal) {
@@ -230,6 +247,11 @@ public class SaleDialog extends javax.swing.JDialog {
                 return canEdit [columnIndex];
             }
         });
+        tableSaleSummary.addContainerListener(new java.awt.event.ContainerAdapter() {
+            public void componentAdded(java.awt.event.ContainerEvent evt) {
+                tableSaleSummaryComponentAdded(evt);
+            }
+        });
         tableSaleSummary.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
                 tableSaleSummaryMousePressed(evt);
@@ -269,17 +291,18 @@ public class SaleDialog extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(fieldSaleTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(fieldSaleTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(fieldSaleTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(fieldSaleTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
 
@@ -399,6 +422,33 @@ public class SaleDialog extends javax.swing.JDialog {
             return;
         }
 
+        for (int i = 0; i < tableSaleSummary.getRowCount(); i++) {
+            int id = ((Integer) tableSaleSummary.getValueAt(i, 0));
+            String name = ((String) tableSaleSummary.getValueAt(i, 1));
+            int quantity = ((Integer) tableSaleSummary.getValueAt(i, 2));
+            double total = (double) tableSaleSummary.getValueAt(i, 3);
+
+            selectedProducts.add(new ProductSold(id, name, quantity, total));
+        }
+
+        int selectedClientId = Integer.parseInt(comboClients.getSelectedItem().toString().substring(0, 5));
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<Client> clients = new ArrayList<>();
+        try {
+            clients = mapper.readValue(new File(String.valueOf(Json.getClientsFileLocation())), new TypeReference<>() {
+            });
+        } catch (IOException ex) {
+            Logger.getLogger(SaleDialog.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        for (Client client : clients) {
+            if (client.getId() == selectedClientId) {
+                selectedClient = client;
+                break;
+            }
+        }
+
         ModalSaleFinalize modalSaleFinalize = new ModalSaleFinalize(SaleDialog.this, true);
         modalSaleFinalize.setVisible(true);
     }//GEN-LAST:event_buttonProceedActionPerformed
@@ -414,8 +464,7 @@ public class SaleDialog extends javax.swing.JDialog {
             return;
         }
 
-        String selectedItem = comboProducts.getSelectedItem().toString();
-        int selectedProductId = Integer.parseInt(selectedItem.substring(0, 5));
+        int selectedProductId = Integer.parseInt(comboProducts.getSelectedItem().toString().substring(0, 5));
 
         Product selectedProduct = null;
         for (Product filteredProduct : filteredProducts) {
@@ -444,6 +493,9 @@ public class SaleDialog extends javax.swing.JDialog {
         }
 
         Mask.refreshSaleComboBox(comboProducts, filteredProducts, 0);
+
+        totalSale += grossValue;
+        fieldSaleTotal.setText(String.format("%.2f", totalSale));
     }//GEN-LAST:event_buttonAddProductActionPerformed
 
     private void jPanel2AncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_jPanel2AncestorAdded
@@ -471,24 +523,26 @@ public class SaleDialog extends javax.swing.JDialog {
         removeItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int itemId = (Integer) tableSaleSummary.getValueAt(row, 0);
+                double grossValue = (double) tableSaleSummary.getValueAt(row, 3);
 
                 Product item = null;
 
                 try {
                     item = (Product) Json.returnRowAsObject(itemId, 0);
-                    System.out.println(item);
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(null, "Erro ao remover item!", "ERRO!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
-                System.out.println("ID PEGO COM SUCESSO" + item.getId());
                 filteredProducts.add(item);
 
                 DefaultTableModel model = (DefaultTableModel) tableSaleSummary.getModel();
                 model.removeRow(row);
 
                 Mask.refreshSaleComboBox(comboProducts, filteredProducts, 0);
+
+                totalSale -= grossValue;
+                fieldSaleTotal.setText(String.format("%.2f", totalSale));
             }
         });
 
@@ -496,6 +550,10 @@ public class SaleDialog extends javax.swing.JDialog {
         popupMenu.show(tableSaleSummary, evt.getX(), evt.getY());
 
     }//GEN-LAST:event_tableSaleSummaryMousePressed
+
+    private void tableSaleSummaryComponentAdded(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_tableSaleSummaryComponentAdded
+
+    }//GEN-LAST:event_tableSaleSummaryComponentAdded
 
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */

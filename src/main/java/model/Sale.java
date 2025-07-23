@@ -19,12 +19,8 @@ public class Sale {
     private final int clientId;
     @JsonProperty("clientName")
     private String clientName;
-    @JsonProperty("productId")
-    private final int productId;
-    @JsonProperty("productName")
-    private String productName;
-    @JsonProperty("amount")
-    private final int amount;
+    @JsonProperty("productsSold")
+    private List<ProductSold> productsSold = new ArrayList<>();
     @JsonProperty("netValue")
     private final double netValue;
     @JsonProperty("installmentValue")
@@ -39,16 +35,14 @@ public class Sale {
     public boolean isCompleted = false;
 
     public Sale(@JsonProperty("clientId") int clientId, @JsonProperty("clientName") String clientName,
-            @JsonProperty("productId") int productId, @JsonProperty("productName") String productName,
-            @JsonProperty("amount") int amount, @JsonProperty("netValue") double netValue,
-            @JsonProperty("installmentValue") double installmentValue,
-            @JsonProperty("allBillingDates") List<Date> allBillingDates) {
+            @JsonProperty("netValue") double netValue, @JsonProperty("installmentValue") double installmentValue,
+            @JsonProperty("productsSold") List<ProductSold> productsSold, @JsonProperty("allBillingDates") List<Date> allBillingDates) {
         this.id = generateUniqueClientId();
         this.clientId = clientId;
         this.clientName = clientName;
-        this.productId = productId;
-        this.productName = productName;
-        this.amount = amount;
+
+        this.productsSold = productsSold;
+
         this.netValue = netValue;
         this.installmentValue = installmentValue;
         this.allBillingDates = allBillingDates;
@@ -102,18 +96,6 @@ public class Sale {
         return clientName;
     }
 
-    public int getProductId() {
-        return productId;
-    }
-
-    public String getProductName() {
-        return productName;
-    }
-
-    public int getAmount() {
-        return amount;
-    }
-
     public double getNetValue() {
         return netValue;
     }
@@ -134,6 +116,10 @@ public class Sale {
         return nextBillingDate;
     }
 
+    public List<ProductSold> getProductsSold() {
+        return productsSold;
+    }
+
     //
     public void setId(int id) {
         this.id = id;
@@ -141,10 +127,6 @@ public class Sale {
 
     public void setClientName(String clientName) {
         this.clientName = clientName;
-    }
-
-    public void setProductName(String productName) {
-        this.productName = productName;
     }
 
     public void setActualInstallment() {
@@ -166,8 +148,7 @@ public class Sale {
 
     @Override
     public String toString() {
-        return "Sale{" + "id=" + id + ", clientId=" + clientId + ", clientName=" + clientName + ", productId=" + productId + ", productName=" + productName + ", amount=" + amount + ", netValue=" + netValue + ", installmentValue=" + installmentValue + ", actualInstallment=" + actualInstallment + ", allBillingDates=" + allBillingDates + ", nextBillingDate=" + nextBillingDate + ", isCompleted=" + isCompleted + '}';
+        return "Sale{" + "id=" + id + ", clientId=" + clientId + ", clientName=" + clientName + ", productsSold=" + productsSold + ", netValue=" + netValue + ", installmentValue=" + installmentValue + ", actualInstallment=" + actualInstallment + ", allBillingDates=" + allBillingDates + ", nextBillingDate=" + nextBillingDate + ", isCompleted=" + isCompleted + '}';
     }
-    
-    
+
 }

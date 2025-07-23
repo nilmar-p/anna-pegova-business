@@ -34,10 +34,6 @@ public class Mask {
             return false;
         }
 
-//        if ((int) spinnerAmount.getValue() <= 0) {
-//            JOptionPane.showMessageDialog(null, "Quantidade não pode ser 0!", "ERRO!", JOptionPane.ERROR_MESSAGE);
-//            return false;
-//        }
         if ((int) spinnerMargin.getValue() <= 0) {
             JOptionPane.showMessageDialog(null, "Margem de lucro não pode ser 0!", "ERRO!", JOptionPane.ERROR_MESSAGE);
             return false;

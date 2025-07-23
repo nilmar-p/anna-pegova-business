@@ -348,6 +348,7 @@
             </Property>
           </Properties>
           <Events>
+            <EventHandler event="componentAdded" listener="java.awt.event.ContainerListener" parameters="java.awt.event.ContainerEvent" handler="tableSaleSummaryComponentAdded"/>
             <EventHandler event="mousePressed" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableSaleSummaryMousePressed"/>
           </Events>
           <AuxValues>
@@ -375,7 +376,7 @@
                   <EmptySpace max="32767" attributes="0"/>
                   <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
-                  <Component id="fieldSaleTotal" min="-2" pref="150" max="-2" attributes="0"/>
+                  <Component id="fieldSaleTotal" min="-2" pref="120" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
           </Group>
@@ -384,10 +385,12 @@
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
-                  <Group type="103" groupAlignment="3" attributes="0">
-                      <Component id="jLabel5" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
-                      <Component id="jLabel6" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
-                      <Component id="fieldSaleTotal" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="fieldSaleTotal" alignment="0" min="-2" pref="35" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="jLabel5" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
+                          <Component id="jLabel6" alignment="3" min="-2" pref="35" max="-2" attributes="0"/>
+                      </Group>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>

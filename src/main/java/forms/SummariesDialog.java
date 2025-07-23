@@ -92,7 +92,7 @@ public class SummariesDialog extends javax.swing.JDialog {
 
             },
             new String [] {
-                "ID", "PRODUTO", "CLIENTE", "PROX. PARCELA"
+                "ID", "TOTAL", "CLIENTE", "PROX. PARCELA"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -116,6 +116,9 @@ public class SummariesDialog extends javax.swing.JDialog {
             tableCurrentSales.getColumnModel().getColumn(0).setMinWidth(50);
             tableCurrentSales.getColumnModel().getColumn(0).setPreferredWidth(50);
             tableCurrentSales.getColumnModel().getColumn(0).setMaxWidth(50);
+            tableCurrentSales.getColumnModel().getColumn(1).setMinWidth(130);
+            tableCurrentSales.getColumnModel().getColumn(1).setPreferredWidth(130);
+            tableCurrentSales.getColumnModel().getColumn(1).setMaxWidth(130);
             tableCurrentSales.getColumnModel().getColumn(3).setMinWidth(120);
             tableCurrentSales.getColumnModel().getColumn(3).setPreferredWidth(120);
             tableCurrentSales.getColumnModel().getColumn(3).setMaxWidth(120);
@@ -212,7 +215,7 @@ public class SummariesDialog extends javax.swing.JDialog {
 
             },
             new String [] {
-                "ID", "PRODUTO", "CLIENTE", "ULTIMA PARCELA"
+                "ID", "TOTAL", "CLIENTE", "ULTIMA PARCELA"
             }
         ) {
             boolean[] canEdit = new boolean [] {
@@ -236,6 +239,9 @@ public class SummariesDialog extends javax.swing.JDialog {
             tableCompletedSales.getColumnModel().getColumn(0).setMinWidth(50);
             tableCompletedSales.getColumnModel().getColumn(0).setPreferredWidth(50);
             tableCompletedSales.getColumnModel().getColumn(0).setMaxWidth(50);
+            tableCompletedSales.getColumnModel().getColumn(1).setMinWidth(130);
+            tableCompletedSales.getColumnModel().getColumn(1).setPreferredWidth(130);
+            tableCompletedSales.getColumnModel().getColumn(1).setMaxWidth(130);
             tableCompletedSales.getColumnModel().getColumn(3).setMinWidth(120);
             tableCompletedSales.getColumnModel().getColumn(3).setPreferredWidth(120);
             tableCompletedSales.getColumnModel().getColumn(3).setMaxWidth(120);
@@ -387,9 +393,7 @@ public class SummariesDialog extends javax.swing.JDialog {
 
                 selectedSale = sale;
 
-                System.out.println("ID PEGO COM SUCESSO " + selectedSale.getId());
-
-                ModalViewCurrentSale modalView = new ModalViewCurrentSale(SummariesDialog.this, true);
+                ModalViewInProgressSale modalView = new ModalViewInProgressSale(SummariesDialog.this, true);
                 modalView.setVisible(true);
             }
         });

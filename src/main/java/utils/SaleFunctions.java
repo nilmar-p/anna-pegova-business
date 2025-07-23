@@ -9,113 +9,118 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import model.Client;
 import model.Product;
+import model.ProductSold;
 import model.Sale;
 import static utils.Json.getProductsFileLocation;
 
 public class SaleFunctions {
 
-    private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
     public static boolean finishSale(
-            double unitPrice,
-            double grossValue,
-            int amount,
+            List<ProductSold> productsSold,
+            Client selectedClient,
+            double netValue,
+            double totalGrossValue,
             double absoluteDiscount,
             double percentageDiscount,
-            double netValue,
-            double installmentValue,
-            Product selectedProduct,
-            Client selectedClient,
             double numberOfInstallments,
             List<Date> allBillingDates
     ) {
+        StringBuilder productsHtml = new StringBuilder();
+
+        for (int i = 0; i < productsSold.size(); i++) {
+            ProductSold product = productsSold.get(i);
+            int qty = product.getQuantity();
+            double totalItem = product.getTotal();
+
+            productsHtml.append(String.format(
+                    """
+            <tr style='border-bottom:1px solid #dee2e6;'>
+                <td style='padding:6px;'>%s</td>
+                <td style='padding:6px; text-align:center;'>%d</td>
+                <td style='padding:6px; text-align:right;'>R$ %.2f</td>
+            </tr>
+            """, product.getName(), qty, totalItem
+            ));
+        }
+
+        double installmentValue = netValue / numberOfInstallments;
 
         String msg = String.format(
                 """
-    <html>
-    <body style='font-family:"Segoe UI Semibold", sans-serif; font-size:13px; color:#333;'>
+<html>
+<body style='font-family:"Segoe UI Semibold", sans-serif; font-size:13px; color:#333;'>
 
-    <div style='width: 370px; margin: 0 auto; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
+<div style='width: 450px; margin: 0 auto; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>
 
-        <div style='background-color: #0EABAA; color: #ffffff; padding: 10px 15px; border-radius: 8px 8px 0 0; text-align:center;'>
-            <b style='font-size:18px;'>Resumo da Compra</b>
-        </div>
-
-        <div style='padding: 5px 15px 12px 15px;'>
-            <table style='width:100%%; border-collapse:collapse;' cellspacing="0" cellpadding="0">
-                
-                <tr style='border-bottom: 1px solid #e9ecef;'>
-                    <td style='padding:10px 0;'>
-                        <div style='text-align:center; font-size:12px; color:#495057;'>
-                            Cliente: <b style='color:#212529;'>%s</b> &nbsp;&bull;&nbsp; CPF: <b style='color:#212529;'>%s</b>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td style='padding:10px 0 4px 0;'>
-                        <span style='color:#6c757d;'>Valor Unitário:</span>
-                        <span style='float:right; color:#212529; font-weight:bold;'>R$ %.2f</span>
-                    </td>
-                </tr>
-                <tr style='border-bottom: 1px solid #e9ecef;'>
-                    <td style='padding:4px 0 10px 0;'>
-                        <span style='color:#6c757d;'>Quantidade:</span>
-                        <span style='float:right; color:#212529; font-weight:bold;'>%d</span>
-                    </td>
-                </tr>
-                <tr>
-                    <td style='padding:10px 0 4px 0;'>
-                        <span style='color:#6c757d;'>Valor Bruto:</span>
-                        <span style='float:right; color:#212529;'>R$ %.2f</span>
-                    </td>
-                </tr>
-                <tr style='border-bottom: 1px solid #e9ecef;'>
-                    <td style='padding:4px 0 10px 0;'>
-                        <span style='color:#6c757d;'>Desconto:</span>
-                        <span style='float:right; color:#dc3545; font-weight:bold;'>- R$ %.2f (%.0f%%)</span>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td style='text-align:center; padding: 12px 0;'>
-                        <span style='font-size:12px; color:#6c757d;'>VALOR TOTAL A PAGAR</span><br>
-                        <span style='font-size:22px; color:#28a745; font-weight:bold; line-height:1.1;'>R$ %.2f</span>
-                    </td>
-                </tr>
-                
-                <tr>
-                    <td style='background-color: #f0f4f8; padding: 10px; border-radius: 6px; text-align:center;'>
-                        <div style='font-size:14px; color:#0056b3; margin-bottom:5px;'>
-                            <b>%.0f</b> parcelas de <b style='font-size:15px;'>R$ %.2f</b>
-                        </div>
-                        <div style='font-size:12px; color:#495057;'>
-                            1ª cobrança: <b>%s</b> &nbsp;|&nbsp; Última: <b>%s</b>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
-        <div style='background-color: #f1f3f5; text-align:center; font-size:13px; color:#495057; padding: 10px; border-radius: 0 0 8px 8px; border-top: 1px solid #dee2e6;'>
-            <b>Deseja finalizar a venda?</b>
-        </div>
-
+    <div style='background-color: #0EABAA; color: #ffffff; padding: 10px 15px; border-radius: 8px 8px 0 0; text-align:center;'>
+        <b style='font-size:18px;'>Resumo da Compra</b>
     </div>
 
-    </body>
-    </html>
-    """,
+    <div style='padding: 5px 15px 12px 15px;'>
+        <table style='width:100%%; border-collapse:collapse;'>
+            
+            <tr style='border-bottom: 1px solid #e9ecef;'>
+                <td colspan='3' style='padding:10px 0; text-align:center; font-size:12px; color:#495057;'>
+                    Cliente: <b style='color:#212529;'>%s</b> &nbsp;&bull;&nbsp; CPF: <b style='color:#212529;'>%s</b>
+                </td>
+            </tr>
+
+            <tr>
+                <th style='padding:8px; text-align:left; color:#6c757d;'>Produto</th>
+                <th style='padding:8px; text-align:center; color:#6c757d;'>Qtd</th>
+                <th style='padding:8px; text-align:right; color:#6c757d;'>Total</th>
+            </tr>
+
+            %s <!-- Produtos listados dinamicamente -->
+
+            <tr>
+                <td colspan='2' style='padding:8px 0; text-align:right; color:#6c757d;'>Valor Bruto:</td>
+                <td style='padding:8px 0; text-align:right; color:#212529;'>R$ %.2f</td>
+            </tr>
+            <tr>
+                <td colspan='2' style='padding:4px 0; text-align:right; color:#6c757d;'>Desconto:</td>
+                <td style='padding:4px 0; text-align:right; color:#dc3545;'>- R$ %.2f (%.2f%%)</td>
+            </tr>
+            <tr>
+                <td colspan='2' style='padding:12px 0; text-align:right; font-size:12px; color:#6c757d;'>VALOR TOTAL A PAGAR</td>
+                <td style='padding:12px 0; text-align:right; font-size:20px; font-weight:bold; color:#28a745;'>R$ %.2f</td>
+            </tr>
+
+            <tr>
+                <td colspan='3' style='background-color: #f0f4f8; padding: 10px; border-radius: 6px; text-align:center;'>
+                    <div style='font-size:14px; color:#0056b3; margin-bottom:5px;'>
+                        <b>%.0f</b> parcelas de <b style='font-size:15px;'>R$ %.2f</b>
+                    </div>
+                    <div style='font-size:12px; color:#495057;'>
+                        1ª cobrança: <b>%s</b> &nbsp;|&nbsp; Última: <b>%s</b>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div style='background-color: #f1f3f5; text-align:center; font-size:13px; color:#495057; padding: 10px; border-radius: 0 0 8px 8px; border-top: 1px solid #dee2e6;'>
+        <b>Deseja finalizar a venda?</b>
+    </div>
+
+</div>
+
+</body>
+</html>
+""",
                 selectedClient.getName(),
-                selectedProduct.getName(),
-                unitPrice,
-                amount,
-                grossValue,
+                selectedClient.getCpf(),
+                productsHtml.toString(),
+                totalGrossValue,
                 absoluteDiscount,
                 percentageDiscount,
                 netValue,
@@ -124,6 +129,7 @@ public class SaleFunctions {
                 sdf.format(allBillingDates.getFirst()),
                 sdf.format(allBillingDates.getLast())
         );
+
         int choice = JOptionPane.showConfirmDialog(
                 null,
                 msg,
@@ -134,24 +140,24 @@ public class SaleFunctions {
 
         switch (choice) {
             case JOptionPane.YES_OPTION -> {
-
-                Sale newSale = new Sale(selectedClient.getId(), selectedClient.getName(),
-                        selectedProduct.getId(),
-                        selectedProduct.getName(), amount, netValue, installmentValue, allBillingDates);
+                Sale newSale = new Sale(
+                        selectedClient.getId(),
+                        selectedClient.getName(),
+                        netValue,
+                        installmentValue,
+                        productsSold,
+                        allBillingDates
+                );
 
                 try {
                     Json.saveSale(newSale);
                 } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(null, "Erro ao salvar compra!", "ERRO!", JOptionPane.ERROR_MESSAGE);
-                    return false;
+                    Logger.getLogger(SaleFunctions.class.getName()).log(Level.SEVERE, null, ex);
                 }
+
                 return true;
             }
-            case JOptionPane.NO_OPTION -> {
-                return false;
-            }
-            case JOptionPane.CLOSED_OPTION -> {
-                System.out.println("Janela fechada sem confirmação.");
+            case JOptionPane.NO_OPTION, JOptionPane.CLOSED_OPTION -> {
                 return false;
             }
             default ->
@@ -159,7 +165,7 @@ public class SaleFunctions {
         }
     }
 
-    public static List<Date> allBillingDates(Date billingDate, int numberOfInstallments) {
+    public static List<Date> returnAllBillingDates(Date billingDate, double numberOfInstallments) {
         List<Date> dates = new ArrayList<>();
         Calendar base = Calendar.getInstance();
         base.setTime(billingDate);
