@@ -43,7 +43,7 @@ public class SummariesDialog extends javax.swing.JDialog {
 
         buttonCancel = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tableCurrentSales = new javax.swing.JTable();
+        tableInProgressSales = new javax.swing.JTable();
         buttonRefresh = new javax.swing.JButton();
         fieldSearchCurrent = new javax.swing.JTextField();
         buttonSearch = new javax.swing.JButton();
@@ -86,8 +86,8 @@ public class SummariesDialog extends javax.swing.JDialog {
             }
         });
 
-        tableCurrentSales.setRowHeight(25);
-        tableCurrentSales.setModel(new javax.swing.table.DefaultTableModel(
+        tableInProgressSales.setRowHeight(25);
+        tableInProgressSales.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -103,25 +103,25 @@ public class SummariesDialog extends javax.swing.JDialog {
                 return canEdit [columnIndex];
             }
         });
-        tableCurrentSales.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        tableCurrentSales.setShowGrid(false);
-        tableCurrentSales.getTableHeader().setReorderingAllowed(false);
-        tableCurrentSales.addMouseListener(new java.awt.event.MouseAdapter() {
+        tableInProgressSales.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tableInProgressSales.setShowGrid(false);
+        tableInProgressSales.getTableHeader().setReorderingAllowed(false);
+        tableInProgressSales.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
-                tableCurrentSalesMousePressed(evt);
+                tableInProgressSalesMousePressed(evt);
             }
         });
-        jScrollPane1.setViewportView(tableCurrentSales);
-        if (tableCurrentSales.getColumnModel().getColumnCount() > 0) {
-            tableCurrentSales.getColumnModel().getColumn(0).setMinWidth(50);
-            tableCurrentSales.getColumnModel().getColumn(0).setPreferredWidth(50);
-            tableCurrentSales.getColumnModel().getColumn(0).setMaxWidth(50);
-            tableCurrentSales.getColumnModel().getColumn(1).setMinWidth(130);
-            tableCurrentSales.getColumnModel().getColumn(1).setPreferredWidth(130);
-            tableCurrentSales.getColumnModel().getColumn(1).setMaxWidth(130);
-            tableCurrentSales.getColumnModel().getColumn(3).setMinWidth(120);
-            tableCurrentSales.getColumnModel().getColumn(3).setPreferredWidth(120);
-            tableCurrentSales.getColumnModel().getColumn(3).setMaxWidth(120);
+        jScrollPane1.setViewportView(tableInProgressSales);
+        if (tableInProgressSales.getColumnModel().getColumnCount() > 0) {
+            tableInProgressSales.getColumnModel().getColumn(0).setMinWidth(50);
+            tableInProgressSales.getColumnModel().getColumn(0).setPreferredWidth(50);
+            tableInProgressSales.getColumnModel().getColumn(0).setMaxWidth(50);
+            tableInProgressSales.getColumnModel().getColumn(1).setMinWidth(130);
+            tableInProgressSales.getColumnModel().getColumn(1).setPreferredWidth(130);
+            tableInProgressSales.getColumnModel().getColumn(1).setMaxWidth(130);
+            tableInProgressSales.getColumnModel().getColumn(3).setMinWidth(120);
+            tableInProgressSales.getColumnModel().getColumn(3).setPreferredWidth(120);
+            tableInProgressSales.getColumnModel().getColumn(3).setMaxWidth(120);
         }
 
         buttonRefresh.setBackground(new java.awt.Color(88, 154, 89));
@@ -209,7 +209,7 @@ public class SummariesDialog extends javax.swing.JDialog {
             .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE)
         );
 
-        tableCurrentSales.setRowHeight(25);
+        tableCompletedSales.setRowHeight(25);
         tableCompletedSales.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
@@ -307,19 +307,38 @@ public class SummariesDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void buttonCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonCancelActionPerformed
+
+        int selectedRow = tableInProgressSales.getSelectedRow();
+        int saleId = (Integer) tableInProgressSales.getValueAt(selectedRow, 0);
+        
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(null, "Você deve selecionar um item da lista!", "ERRO!", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
         try {
-            Json.deleteIndexFromJson(tableCurrentSales, Json.getSalesFileLocation(), 2);
+            Json.updateStockFromCanceledSale(saleId);
+        } catch (IOException ex) {
+            Logger.getLogger(SummariesDialog.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Erro ao mudar quantidade no estoque a partir do cancelamento da compra!",
+                    "ERRO!", JOptionPane.ERROR_MESSAGE);
+            return;
+
+        }
+
+        try {
+            Json.deleteIndexFromJson(tableInProgressSales, Json.getSalesFileLocation(), 2);
         } catch (IOException ex) {
             Logger.getLogger(SummariesDialog.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(null, "Erro ao cancelar compra!", "ERRO!", JOptionPane.ERROR_MESSAGE);
-
+            return;
         }
     }//GEN-LAST:event_buttonCancelActionPerformed
 
     private void buttonRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonRefreshActionPerformed
         try {
             Mask.clearSearchFieldsSummaries(fieldSearchCurrent, fieldSearchCompleted);
-            Json.refreshSummariesTables(tableCurrentSales, tableCompletedSales);
+            Json.refreshSummariesTables(tableInProgressSales, tableCompletedSales);
             JOptionPane.showMessageDialog(null, "Tabelas atualizadas!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (IOException ex) {
@@ -331,7 +350,7 @@ public class SummariesDialog extends javax.swing.JDialog {
 
     private void buttonSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSearchActionPerformed
         try {
-            Search.searchItemOnTable(tableCurrentSales, fieldSearchCurrent.getText(), 2);
+            Search.searchItemOnTable(tableInProgressSales, fieldSearchCurrent.getText(), 2);
         } catch (IOException ex) {
             Logger.getLogger(SummariesDialog.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(null, "Erro ao pesquisar!",
@@ -351,7 +370,7 @@ public class SummariesDialog extends javax.swing.JDialog {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         try {
-            Json.refreshSummariesTables(tableCurrentSales, tableCompletedSales);
+            Json.refreshSummariesTables(tableInProgressSales, tableCompletedSales);
         } catch (IOException ex) {
             Logger.getLogger(SummariesDialog.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(null, "Erro ao atualizar tabela! (nenhuma venda foi realizada ainda)",
@@ -359,27 +378,27 @@ public class SummariesDialog extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_formWindowOpened
 
-    private void tableCurrentSalesMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableCurrentSalesMousePressed
+    private void tableInProgressSalesMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableInProgressSalesMousePressed
         if (!SwingUtilities.isRightMouseButton(evt)) {
             return;
         }
 
-        int row = tableCurrentSales.rowAtPoint(evt.getPoint());
+        int row = tableInProgressSales.rowAtPoint(evt.getPoint());
 
         if (row < 0) {
             return;
         }
 
-        tableCurrentSales.setRowSelectionInterval(row, row);
-        tableCurrentSales.setFocusable(true);
-        tableCurrentSales.requestFocusInWindow();
+        tableInProgressSales.setRowSelectionInterval(row, row);
+        tableInProgressSales.setFocusable(true);
+        tableInProgressSales.requestFocusInWindow();
 
         JPopupMenu popupMenu = new JPopupMenu();
 
         JMenuItem viewItem = new JMenuItem("Visualizar compra");
         viewItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int saleId = (Integer) tableCurrentSales.getValueAt(row, 0);
+                int saleId = (Integer) tableInProgressSales.getValueAt(row, 0);
 
                 Sale sale = null;
 
@@ -399,12 +418,12 @@ public class SummariesDialog extends javax.swing.JDialog {
         });
 
         popupMenu.add(viewItem);
-        popupMenu.show(tableCurrentSales, evt.getX(), evt.getY());
-    }//GEN-LAST:event_tableCurrentSalesMousePressed
+        popupMenu.show(tableInProgressSales, evt.getX(), evt.getY());
+    }//GEN-LAST:event_tableInProgressSalesMousePressed
 
     private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
         try {
-            Json.refreshSummariesTables(tableCurrentSales, tableCompletedSales);
+            Json.refreshSummariesTables(tableInProgressSales, tableCompletedSales);
         } catch (IOException ex) {
             Logger.getLogger(SummariesDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -437,15 +456,12 @@ public class SummariesDialog extends javax.swing.JDialog {
 
                 try {
                     sale = (Sale) Json.returnRowAsObject(saleId, 3);
-                    System.out.println(sale);
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(null, "ERRO AO ABRIR PAINEL DE VISUALIZAÇÃO!", "ERRO!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
                 selectedSale = sale;
-
-                System.out.println("ID PEGO COM SUCESSO " + selectedSale.getId());
 
                 ModalViewCompletedSale modalView = new ModalViewCompletedSale(SummariesDialog.this, true);
                 modalView.setVisible(true);
@@ -513,6 +529,6 @@ public class SummariesDialog extends javax.swing.JDialog {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable tableCompletedSales;
-    private javax.swing.JTable tableCurrentSales;
+    private javax.swing.JTable tableInProgressSales;
     // End of variables declaration//GEN-END:variables
 }

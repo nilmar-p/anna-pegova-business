@@ -128,7 +128,7 @@
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
-        <Component class="javax.swing.JTable" name="tableCurrentSales">
+        <Component class="javax.swing.JTable" name="tableInProgressSales">
           <Properties>
             <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
               <Table columnCount="4" rowCount="0">
@@ -169,10 +169,10 @@
             </Property>
           </Properties>
           <Events>
-            <EventHandler event="mousePressed" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableCurrentSalesMousePressed"/>
+            <EventHandler event="mousePressed" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableInProgressSalesMousePressed"/>
           </Events>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="tableCurrentSales.setRowHeight(25);"/>
+            <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="tableInProgressSales.setRowHeight(25);"/>
           </AuxValues>
         </Component>
       </SubComponents>
@@ -402,7 +402,7 @@
             <EventHandler event="mousePressed" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableCompletedSalesMousePressed"/>
           </Events>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="tableCurrentSales.setRowHeight(25);"/>
+            <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="tableCompletedSales.setRowHeight(25);"/>
           </AuxValues>
         </Component>
       </SubComponents>

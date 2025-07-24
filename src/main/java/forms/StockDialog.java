@@ -257,6 +257,8 @@ public class StockDialog extends javax.swing.JDialog {
             Json.deleteIndexFromJson(tableRegistereds, Json.getProductsFileLocation(), 0);
         } catch (IOException ex) {
             Logger.getLogger(StockDialog.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Erro ao deletar item da tabela!",
+                    "ERRO!", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_buttonDeleteActionPerformed
 
@@ -332,14 +334,12 @@ public class StockDialog extends javax.swing.JDialog {
 
                 try {
                     product = (Product) Json.returnRowAsObject(productId, 0);
-                    System.out.println(product);
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(null, "ERRO AO ABRIR PAINEL DE EDIÇÃO!", "ERRO!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
                 selectedProduct = product;
-                System.out.println("ID PEGO COM SUCESSO " + selectedProduct.getId());
 
                 ModalEditProduct modalEdit = new ModalEditProduct(StockDialog.this, true);
                 modalEdit.setVisible(true);

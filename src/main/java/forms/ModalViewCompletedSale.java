@@ -1,10 +1,16 @@
 package forms;
 
+import java.util.List;
+import javax.swing.table.DefaultTableModel;
+import model.ProductSold;
+import model.Sale;
+import utils.Mask;
+
 public class ModalViewCompletedSale extends javax.swing.JDialog {
 
-    /**
-     * Creates new form ModalViewCompletedSale
-     */
+    private Sale selectedSale;
+    private List<ProductSold> products;
+
     public ModalViewCompletedSale(java.awt.Dialog parent, boolean modal) {
         super(parent, modal);
         initComponents();
@@ -66,10 +72,7 @@ public class ModalViewCompletedSale extends javax.swing.JDialog {
         tableCompletedSale.setRowHeight(25);
         tableCompletedSale.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
                 "ID", "Produto", "Quantidade", "Total"
@@ -236,7 +239,27 @@ public class ModalViewCompletedSale extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        
+        DefaultTableModel model = (DefaultTableModel) tableCompletedSale.getModel();
+        selectedSale = SummariesDialog.getSelectedSale();
+        products = selectedSale.getProductsSold();
+
+        for (int i = 0; i < products.size(); i++) {
+
+            Object[] saleA = {
+                products.get(i).getId(),
+                products.get(i).getName(),
+                products.get(i).getQuantity(),
+                products.get(i).getTotal()
+            };
+
+            model.addRow(saleA);
+        }
+
+        labelClientName.setText(selectedSale.getClientName());
+        fieldCurrentInstallmentValue.setText(String.format("R$ %.2f", selectedSale.getInstallmentValue()));
+        fieldTotal.setText(String.format("R$ %.2f", selectedSale.getNetValue()));
+        fieldCurrentInstallment.setText(String.format("%d de %d", selectedSale.getActualInstallment(), selectedSale.getAllBillingDates().size()));
+        fieldDueDate.setText(Mask.sdf.format(selectedSale.getNextBillingDate()));
     }//GEN-LAST:event_formWindowOpened
 
     /**

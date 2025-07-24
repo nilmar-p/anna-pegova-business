@@ -19,6 +19,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import model.Client;
 import model.Product;
+import model.ProductSold;
 import model.Sale;
 
 public class Json {
@@ -197,12 +198,12 @@ public class Json {
 
             Object[] saleA = {
                 completedSale.getId(),
-                completedSale.getId(),
-                completedSale.getNetValue(),
+                String.format("R$ %.2f", completedSale.getNetValue()),
                 String.format("%d - %s", completedSale.getClientId(), completedSale.getClientName()),
                 Mask.sdf.format(completedSale.getNextBillingDate())
             };
             completedSalesTableModel.addRow(saleA);
+
         }
 
     }
@@ -302,10 +303,6 @@ public class Json {
         Files.createDirectories(fileLocation.getParent());
 
         int selectedRow = tableRegistereds.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(null, "Você deve selecionar um item da lista!", "ERRO!", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
 
         String content = Files.exists(fileLocation) ? Files.readString(fileLocation) : "[]";
 
@@ -464,5 +461,62 @@ public class Json {
             default ->
                 throw new AssertionError();
         }
+    }
+
+    public static void updateStockFromSale(List<ProductSold> productsSold) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+        Files.createDirectories(Json.getProductsFileLocation().getParent());
+        String content = Files.exists(Json.getProductsFileLocation()) ? Files.readString(Json.getProductsFileLocation()) : "[]";
+
+        List<Product> products = mapper.readValue(content, new TypeReference<>() {
+        });
+
+        for (ProductSold productSold : productsSold) {
+            for (Product product : products) {
+                if (productSold.getId() == product.getId()) {
+                    product.setAmount(product.getAmount() - productSold.getQuantity());
+
+                    break;
+                }
+            }
+
+        }
+
+        mapper.writeValue(Json.getProductsFileLocation().toFile(), products);
+    }
+
+    public static void updateStockFromCanceledSale(int saleId) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+        Files.createDirectories(Json.getProductsFileLocation().getParent());
+        String contentProducts = Files.exists(Json.getProductsFileLocation()) ? Files.readString(Json.getProductsFileLocation()) : "[]";
+
+        Files.createDirectories(Json.getSalesFileLocation().getParent());
+        String contentSales = Files.exists(Json.getSalesFileLocation()) ? Files.readString(Json.getSalesFileLocation()) : "[]";
+
+        List<Product> products = mapper.readValue(contentProducts, new TypeReference<>() {
+        });
+
+        List<Sale> sales = mapper.readValue(contentSales, new TypeReference<>() {
+        });
+
+        for (Sale sale : sales) {
+            if (sale.getId() == saleId) {
+                for (int i = 0; i < sale.getProductsSold().size(); i++) {
+                    for (Product product : products) {
+                        if (product.getId() == sale.getProductsSold().get(i).getId()) {
+                            product.setAmount(product.getAmount() + sale.getProductsSold().get(i).getQuantity());
+                            break;
+                        }
+                    }
+                }
+                break;
+            }
+        }
+
+        mapper.writeValue(Json.getProductsFileLocation().toFile(), products);
     }
 }

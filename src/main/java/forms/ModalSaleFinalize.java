@@ -1,18 +1,30 @@
 package forms;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import enums.DiscountType;
 import static forms.SaleDialog.getSelectedClient;
 import static forms.SaleDialog.getSelectedProducts;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.SpinnerNumberModel;
+import model.Product;
 import model.ProductSold;
+import model.Sale;
+import utils.Json;
 import utils.SaleFunctions;
 
 public class ModalSaleFinalize extends javax.swing.JDialog {
+
+    public boolean isPucharseCompleted;
 
     private static double totalSale;
 
@@ -245,15 +257,13 @@ public class ModalSaleFinalize extends javax.swing.JDialog {
                 throw new AssertionError();
         }
 
-        System.out.println(percentageDiscount);
-
         Date startBillingDate = dateBillingDate.getDate();
         double numberOfInstallments = ((Number) spinnerInstallment.getValue()).doubleValue();
 
         List<Date> allBillingDates = SaleFunctions.returnAllBillingDates(startBillingDate, numberOfInstallments);
 
         List<ProductSold> productsSold = new ArrayList<>();
-        
+
         for (int i = 0; i < getSelectedProducts().size(); i++) {
             ProductSold actual = getSelectedProducts().get(i);
 
@@ -262,8 +272,25 @@ public class ModalSaleFinalize extends javax.swing.JDialog {
             productsSold.add(item);
         }
 
-        SaleFunctions.finishSale(productsSold, getSelectedClient(), netValue, totalSale, absoluteDiscount,
-                                 percentageDiscount, numberOfInstallments, allBillingDates);
+        isPucharseCompleted = SaleFunctions.finishSale(productsSold, getSelectedClient(), netValue, totalSale, absoluteDiscount,
+                percentageDiscount, numberOfInstallments, allBillingDates);
+
+        if (isPucharseCompleted) {
+
+            try {
+                Json.updateStockFromSale(productsSold);
+            } catch (IOException ex) {
+                Logger.getLogger(ModalSaleFinalize.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(null, "Erro ao finalizar compra!", "ERRO!", JOptionPane.ERROR_MESSAGE);
+
+                return;
+            }
+
+            JOptionPane.showMessageDialog(null, "Venda realizada com sucesso!", "Sucesso!", JOptionPane.INFORMATION_MESSAGE);
+            dispose();
+        }
+
+
     }//GEN-LAST:event_buttonFinishSaleActionPerformed
 
     private void checkInstallmentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_checkInstallmentActionPerformed
@@ -298,6 +325,8 @@ public class ModalSaleFinalize extends javax.swing.JDialog {
     }//GEN-LAST:event_comboDiscountActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        isPucharseCompleted = false;
+
         totalSale = SaleDialog.getTotalSale();
 
         DefaultComboBoxModel model = new DefaultComboBoxModel(DiscountType.values());

@@ -35,7 +35,7 @@ public class ModalViewInProgressSale extends javax.swing.JDialog {
         jPanel2 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tableFinalizeSale = new javax.swing.JTable();
+        tableInProgressSale = new javax.swing.JTable();
         labelClientName = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
@@ -89,8 +89,8 @@ public class ModalViewInProgressSale extends javax.swing.JDialog {
             .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 85, Short.MAX_VALUE)
         );
 
-        tableFinalizeSale.setRowHeight(25);
-        tableFinalizeSale.setModel(new javax.swing.table.DefaultTableModel(
+        tableInProgressSale.setRowHeight(25);
+        tableInProgressSale.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
@@ -106,10 +106,21 @@ public class ModalViewInProgressSale extends javax.swing.JDialog {
                 return canEdit [columnIndex];
             }
         });
-        tableFinalizeSale.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        tableFinalizeSale.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        tableFinalizeSale.getTableHeader().setReorderingAllowed(false);
-        jScrollPane1.setViewportView(tableFinalizeSale);
+        tableInProgressSale.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tableInProgressSale.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tableInProgressSale.getTableHeader().setReorderingAllowed(false);
+        jScrollPane1.setViewportView(tableInProgressSale);
+        if (tableInProgressSale.getColumnModel().getColumnCount() > 0) {
+            tableInProgressSale.getColumnModel().getColumn(0).setMinWidth(50);
+            tableInProgressSale.getColumnModel().getColumn(0).setPreferredWidth(50);
+            tableInProgressSale.getColumnModel().getColumn(0).setMaxWidth(50);
+            tableInProgressSale.getColumnModel().getColumn(2).setMinWidth(100);
+            tableInProgressSale.getColumnModel().getColumn(2).setPreferredWidth(100);
+            tableInProgressSale.getColumnModel().getColumn(2).setMaxWidth(100);
+            tableInProgressSale.getColumnModel().getColumn(3).setMinWidth(120);
+            tableInProgressSale.getColumnModel().getColumn(3).setPreferredWidth(120);
+            tableInProgressSale.getColumnModel().getColumn(3).setMaxWidth(120);
+        }
 
         labelClientName.setBackground(new java.awt.Color(255, 255, 255));
         labelClientName.setFont(new java.awt.Font("Segoe UI Variable", 0, 18)); // NOI18N
@@ -231,8 +242,7 @@ public class ModalViewInProgressSale extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-
-        DefaultTableModel model = (DefaultTableModel) tableFinalizeSale.getModel();
+        DefaultTableModel model = (DefaultTableModel) tableInProgressSale.getModel();
         selectedSale = SummariesDialog.getSelectedSale();
         products = selectedSale.getProductsSold();
 
@@ -363,6 +373,6 @@ public class ModalViewInProgressSale extends javax.swing.JDialog {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel labelClientName;
-    private javax.swing.JTable tableFinalizeSale;
+    private javax.swing.JTable tableInProgressSale;
     // End of variables declaration//GEN-END:variables
 }

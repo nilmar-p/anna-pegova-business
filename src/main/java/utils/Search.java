@@ -12,6 +12,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import model.Client;
 import model.Product;
+import model.ProductSold;
 import model.Sale;
 import static utils.Json.getProductsFileLocation;
 import static utils.Json.getClientsFileLocation;
@@ -68,7 +69,7 @@ public class Search {
                     if (sale.getClientName().startsWith(search)) {
                         Object[] saleA = {
                             sale.getId(),
-//                            String.format("%d - %s", sale.getProductId(), sale.getProductName()),
+                            String.format("R$ %.2f", sale.getNetValue()),
                             String.format("%d - %s", sale.getClientId(), sale.getClientName()),
                             Mask.sdf.format(sale.getNextBillingDate())
                         };
@@ -89,8 +90,8 @@ public class Search {
                     if (sale.getClientName().startsWith(search)) {
                         Object[] saleA = {
                             sale.getId(),
-//                            String.format("%d - %s", sale.getProductId(), sale.getProductName()),
-//                            String.format("%d - %s", sale.getClientId(), sale.getClientName()),
+                            String.format("R$ %.2f", sale.getNetValue()),
+                            String.format("%d - %s", sale.getClientId(), sale.getClientName()),
                             Mask.sdf.format(sale.getNextBillingDate())
                         };
 
@@ -130,7 +131,7 @@ public class Search {
         tableRegisteredsModel.setRowCount(0);
 
         switch (filter) {
-            case "NOME":
+            case "NOME" -> {
                 for (Client client : clients) {
                     if (client.getName().startsWith(search)) {
                         Object[] productA = {
@@ -145,8 +146,8 @@ public class Search {
                     }
 
                 }
-                break;
-            case "CIDADE":
+            }
+            case "CIDADE" -> {
                 for (Client client : clients) {
                     if (client.getCity().startsWith(search)) {
                         Object[] productA = {
@@ -161,10 +162,11 @@ public class Search {
                     }
 
                 }
-                break;
-            default:
+            }
+            default -> {
                 JOptionPane.showMessageDialog(null, "Erro na pesquisa!", "ERRO!", JOptionPane.ERROR_MESSAGE);
                 throw new AssertionError();
+            }
         }
 
         if (tableRegistereds.getRowCount() == 0) {
