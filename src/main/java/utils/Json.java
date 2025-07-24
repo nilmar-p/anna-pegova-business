@@ -42,129 +42,106 @@ public class Json {
     }
 
     //methods
-    public static void saveProduct(Product newItem) throws IOException {
+    public static void saveItemByType(Object newItem, int type) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-        Files.createDirectories(getProductsFileLocation().getParent());
+        Path filePath;
+        TypeReference<?> typeReference;
 
-        List<Product> items = new ArrayList<>();
+        switch (type) {
+            case 0 -> {
+                filePath = getProductsFileLocation();
+                typeReference = new TypeReference<List<Product>>() {
+                };
+            }
+            case 1 -> {
+                filePath = getClientsFileLocation();
+                typeReference = new TypeReference<List<Client>>() {
+                };
+            }
+            case 2 -> {
+                filePath = getSalesFileLocation();
+                typeReference = new TypeReference<List<Sale>>() {
+                };
+            }
+            default -> throw new IllegalArgumentException("Tipo inválido: " + type);
+        }
 
-        if (Files.exists(getProductsFileLocation())) {
+        Files.createDirectories(filePath.getParent());
+
+        List<Object> items = new ArrayList<>();
+
+        if (Files.exists(filePath)) {
             try {
-                String content = Files.readString(getProductsFileLocation());
-
+                String content = Files.readString(filePath);
                 if (!content.isEmpty()) {
-                    items = mapper.readValue(content,
-                            new TypeReference<List<Product>>() {
-                    });
+                    items = (List<Object>) mapper.readValue(content, typeReference);
                 }
-            } catch (Exception e) {
+            } catch (IOException e) {
                 System.err.println("Erro ao ler arquivo existente: " + e.getMessage());
             }
         }
+
         items.add(newItem);
 
         String json = mapper.writeValueAsString(items);
 
-        Files.write(getProductsFileLocation(), json.getBytes(StandardCharsets.UTF_8),
+        Files.write(filePath, json.getBytes(StandardCharsets.UTF_8),
                 StandardOpenOption.CREATE,
                 StandardOpenOption.TRUNCATE_EXISTING,
                 StandardOpenOption.WRITE);
     }
 
-    public static void saveClient(Client newClient) throws IOException {
+    public static void refreshTableByType(JTable table, int type) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
+        DefaultTableModel model = (DefaultTableModel) table.getModel();
 
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        model.setRowCount(0);
 
-        Files.createDirectories(getClientsFileLocation().getParent());
-
-        List<Client> clients = new ArrayList<>();
-
-        if (Files.exists(getClientsFileLocation())) {
-            try {
-                String content = Files.readString(getClientsFileLocation());
-
-                if (!content.isEmpty()) {
-                    clients = mapper.readValue(content,
-                            new TypeReference<List<Client>>() {
-                    });
+        switch (type) {
+            case 0 -> {
+                List<Product> products = mapper.readValue(
+                        new File(String.valueOf(getProductsFileLocation())),
+                        new TypeReference<List<Product>>() {
                 }
-            } catch (Exception e) {
-                System.err.println("Erro ao ler arquivo existente: " + e.getMessage());
-            }
-        }
-        clients.add(newClient);
+                );
 
-        String json = mapper.writeValueAsString(clients);
-
-        Files.write(getClientsFileLocation(), json.getBytes(StandardCharsets.UTF_8),
-                StandardOpenOption.CREATE,
-                StandardOpenOption.TRUNCATE_EXISTING,
-                StandardOpenOption.WRITE);
-    }
-
-    public static void saveSale(Sale newSale) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-
-        Files.createDirectories(getSalesFileLocation().getParent());
-        Files.createDirectories(getCompletedSalesFileLocation().getParent());
-
-        if (Files.notExists(getCompletedSalesFileLocation())) {
-            Files.write(getCompletedSalesFileLocation(),
-                    "[]".getBytes(StandardCharsets.UTF_8),
-                    StandardOpenOption.CREATE);
-        }
-
-        List<Sale> sales = new ArrayList<>();
-
-        if (Files.exists(getSalesFileLocation())) {
-            try {
-                String content = Files.readString(getSalesFileLocation());
-
-                if (!content.isBlank()) {
-                    sales = mapper.readValue(content, new TypeReference<>() {
-                    });
+                for (Product product : products) {
+                    Object[] row = {
+                        product.getId(),
+                        product.getName(),
+                        product.getVolume() + "ml",
+                        product.getAmount(),
+                        String.format("R$ %.2f", product.getTotal()),
+                        String.format("%d%%", product.getMargin()),
+                        String.format("R$ %.2f", product.getProfit())
+                    };
+                    model.addRow(row);
                 }
-            } catch (Exception e) {
-                System.err.println("Erro ao ler arquivo existente: " + e.getMessage());
             }
-        }
 
-        sales.add(newSale);
+            case 1 -> {
+                List<Client> clients = mapper.readValue(
+                        new File(String.valueOf(getClientsFileLocation())),
+                        new TypeReference<List<Client>>() {
+                }
+                );
 
-        String json = mapper.writeValueAsString(sales);
+                for (Client client : clients) {
+                    Object[] row = {
+                        client.getId(),
+                        client.getName(),
+                        client.getPhone(),
+                        client.getCpf(),
+                        client.getCity()
+                    };
+                    model.addRow(row);
+                }
+            }
 
-        Files.write(getSalesFileLocation(), json.getBytes(StandardCharsets.UTF_8),
-                StandardOpenOption.CREATE,
-                StandardOpenOption.TRUNCATE_EXISTING,
-                StandardOpenOption.WRITE);
-    }
-
-    public static void refreshProductsTable(JTable productsTable) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        DefaultTableModel clientsTableModel = (DefaultTableModel) productsTable.getModel();
-
-        clientsTableModel.setRowCount(0);
-
-        List<Product> products = mapper.readValue(new File(String.valueOf(getProductsFileLocation())), new TypeReference<List<Product>>() {
-        });
-
-        for (Product product : products) {
-            Object[] productA = {
-                product.getId(),
-                product.getName(),
-                product.getVolume() + "ml",
-                product.getAmount(),
-                String.format("R$ %.2f", product.getTotal()),
-                String.format("%d%%", product.getMargin()),
-                String.format("R$ %.2f", product.getProfit())
-            };
-            clientsTableModel.addRow(productA);
-
+            default ->
+                throw new IllegalArgumentException("Tipo inválido: " + type);
         }
     }
 
@@ -206,28 +183,6 @@ public class Json {
 
         }
 
-    }
-
-    public static void refreshClientsTable(JTable clientsTable) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        DefaultTableModel clientsTableModel = (DefaultTableModel) clientsTable.getModel();
-
-        clientsTableModel.setRowCount(0);
-
-        List<Client> clients = mapper.readValue(new File(String.valueOf(getClientsFileLocation())), new TypeReference<List<Client>>() {
-        });
-
-        for (Client client : clients) {
-            Object[] clientA = {
-                client.getId(),
-                client.getName(),
-                client.getPhone(),
-                client.getCpf(),
-                client.getCity()
-            };
-            clientsTableModel.addRow(clientA);
-
-        }
     }
 
     public static Object returnRowAsObject(int itemId, int type) throws IOException {
@@ -327,7 +282,8 @@ public class Json {
                 });
                 products.removeIf(item -> item.getId() == id);
                 mapper.writeValue(fileLocation.toFile(), products);
-                refreshProductsTable(tableRegistereds);
+                refreshTableByType(tableRegistereds, 0);
+
             }
 
             case 1 -> {
@@ -335,7 +291,7 @@ public class Json {
                 });
                 clients.removeIf(client -> client.getId() == id);
                 mapper.writeValue(fileLocation.toFile(), clients);
-                refreshClientsTable(tableRegistereds);
+                refreshTableByType(tableRegistereds, 1);
             }
 
             case 2 -> {
@@ -432,7 +388,6 @@ public class Json {
                         if (sale.getActualInstallment() < sale.getAllBillingDates().size()) {
                             sale.setActualInstallment();
                         } else {
-                            System.out.println("Venda concluída, movendo para completedSales");
                             sale.setCompleted(true);
 
                             iterator.remove();

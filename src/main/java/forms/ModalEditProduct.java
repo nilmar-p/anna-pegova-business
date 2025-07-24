@@ -202,7 +202,6 @@ public class ModalEditProduct extends javax.swing.JDialog {
         if (!Mask.isValidForm(fieldName, spinnerVolume, spinnerPrice, spinnerAmount, spinnerMargin)) {
             return;
         }
-        System.out.println("passou aqui");
 
         Product updatedProduct = null;
 
@@ -214,7 +213,6 @@ public class ModalEditProduct extends javax.swing.JDialog {
                     ((Number) spinnerAmount.getValue()).intValue(),
                     ((Number) spinnerMargin.getValue()).intValue()
             );
-            System.out.println("passou aqui");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "ERRO AO EDITAR PRODUTO!", "ERRO!", JOptionPane.ERROR_MESSAGE);
             return;

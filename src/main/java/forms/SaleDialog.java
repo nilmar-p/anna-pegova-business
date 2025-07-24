@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -23,7 +22,6 @@ import model.Client;
 import model.Product;
 import model.ProductSold;
 import utils.Json;
-import static utils.Json.getProductsFileLocation;
 import utils.Mask;
 import utils.SaleFunctions;
 

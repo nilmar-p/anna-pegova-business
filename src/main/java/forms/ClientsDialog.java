@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import model.Client;
 import utils.Json;
@@ -223,7 +222,7 @@ public class ClientsDialog extends javax.swing.JDialog {
     private void buttonRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonRefreshActionPerformed
         try {
             Mask.clearSearchField(fieldSearch);
-            Json.refreshClientsTable(tableRegistereds);
+            Json.refreshTableByType(tableRegistereds, 1);
             JOptionPane.showMessageDialog(null, "Tabela atualizada!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (IOException ex) {
@@ -263,7 +262,7 @@ public class ClientsDialog extends javax.swing.JDialog {
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
 
         try {
-            Json.refreshClientsTable(tableRegistereds);
+            Json.refreshTableByType(tableRegistereds, 1);
         } catch (IOException ex) {
             Logger.getLogger(ClientsDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -272,7 +271,7 @@ public class ClientsDialog extends javax.swing.JDialog {
 
     private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
         try {
-            Json.refreshClientsTable(tableRegistereds);
+            Json.refreshTableByType(tableRegistereds, 1);
         } catch (IOException ex) {
             Logger.getLogger(ClientsDialog.class.getName()).log(Level.SEVERE, null, ex);
         }

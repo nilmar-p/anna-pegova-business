@@ -296,7 +296,7 @@ public class NewClientDialog extends javax.swing.JDialog {
         }
 
         try {
-            Json.saveClient(newClient);
+            Json.saveItemByType(newClient, 1);
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "ERRO AO CADASTRAR CLIENTE: " + ex);
 

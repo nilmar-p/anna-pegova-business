@@ -12,10 +12,8 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import model.Client;
 import model.Product;
-import model.ProductSold;
 import model.Sale;
 import static utils.Json.getProductsFileLocation;
-import static utils.Json.getClientsFileLocation;
 import static utils.Json.getSalesFileLocation;
 import static utils.Json.getCompletedSalesFileLocation;
 
@@ -26,7 +24,7 @@ public class Search {
 
         if (search.isEmpty()) {
             try {
-                Json.refreshProductsTable(tableRegistereds);
+                Json.refreshTableByType(tableRegistereds, 0);
             } catch (IOException ex) {
                 Logger.getLogger(Search.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -116,7 +114,7 @@ public class Search {
     public static void searchClientsOnTable(JTable tableRegistereds, String search, String filter) throws IOException {
         if (search.isEmpty()) {
             try {
-                Json.refreshClientsTable(tableRegistereds);
+                Json.refreshTableByType(tableRegistereds, 1);
             } catch (IOException ex) {
                 Logger.getLogger(Search.class.getName()).log(Level.SEVERE, null, ex);
             }

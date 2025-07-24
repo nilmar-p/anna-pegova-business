@@ -1,13 +1,9 @@
 package forms;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import enums.DiscountType;
 import static forms.SaleDialog.getSelectedClient;
 import static forms.SaleDialog.getSelectedProducts;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -16,9 +12,7 @@ import java.util.logging.Logger;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
 import javax.swing.SpinnerNumberModel;
-import model.Product;
 import model.ProductSold;
-import model.Sale;
 import utils.Json;
 import utils.SaleFunctions;
 

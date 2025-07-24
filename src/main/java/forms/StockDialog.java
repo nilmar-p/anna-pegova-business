@@ -228,7 +228,7 @@ public class StockDialog extends javax.swing.JDialog {
     private void buttonRefreshActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonRefreshActionPerformed
         try {
             Mask.clearSearchField(fieldSearch);
-            Json.refreshProductsTable(tableRegistereds);
+            Json.refreshTableByType(tableRegistereds, 0);
             JOptionPane.showMessageDialog(null, "Tabela atualizada!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
         } catch (IOException ex) {
@@ -270,7 +270,7 @@ public class StockDialog extends javax.swing.JDialog {
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
 
         try {
-            Json.refreshProductsTable(tableRegistereds);
+            Json.refreshTableByType(tableRegistereds, 0);
         } catch (IOException ex) {
             Logger.getLogger(StockDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -279,7 +279,7 @@ public class StockDialog extends javax.swing.JDialog {
 
     private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
         try {
-            Json.refreshProductsTable(tableRegistereds);
+            Json.refreshTableByType(tableRegistereds, 0);
         } catch (IOException ex) {
             Logger.getLogger(StockDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -311,14 +311,12 @@ public class StockDialog extends javax.swing.JDialog {
 
                 try {
                     product = (Product) Json.returnRowAsObject(productId, 0);
-                    System.out.println(product);
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(null, "ERRO AO ABRIR PAINEL DE VISUALIZAÇÃO!", "ERRO!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
                 selectedProduct = product;
-                System.out.println("ID PEGO COM SUCESSO " + selectedProduct.getId());
 
                 ModalViewProduct modalView = new ModalViewProduct(StockDialog.this, true);
                 modalView.setVisible(true);

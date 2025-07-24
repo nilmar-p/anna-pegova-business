@@ -150,7 +150,7 @@ public class SaleFunctions {
                 );
 
                 try {
-                    Json.saveSale(newSale);
+                    Json.saveItemByType(newSale, 2);
                 } catch (IOException ex) {
                     Logger.getLogger(SaleFunctions.class.getName()).log(Level.SEVERE, null, ex);
                 }
