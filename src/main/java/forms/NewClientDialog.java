@@ -1,4 +1,3 @@
-
 package forms;
 
 import java.io.IOException;
@@ -292,13 +291,13 @@ public class NewClientDialog extends javax.swing.JDialog {
                     fieldCep.getText()
             );
         } catch (Exception e) {
-            System.out.println("Erro ao criar cliente: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Erro ao criar cliente!", "ERRO!", JOptionPane.ERROR_MESSAGE);
         }
 
         try {
             Json.saveItemByType(newClient, 1);
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "ERRO AO CADASTRAR CLIENTE: " + ex);
+            JOptionPane.showMessageDialog(null, "Erro ao criar cliente!", "ERRO!", JOptionPane.ERROR_MESSAGE);
 
         }
 

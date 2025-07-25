@@ -53,6 +53,7 @@ public class ModalSaleFinalize extends javax.swing.JDialog {
         spinnerDiscountValue = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setTitle("FINALIZAR VENDA");
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);

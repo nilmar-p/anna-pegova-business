@@ -52,7 +52,7 @@ public class SaleDialog extends javax.swing.JDialog {
     }
 
     //
-    public SaleDialog(java.awt.Dialog parent, boolean modal) {
+    public SaleDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(null);
@@ -82,7 +82,7 @@ public class SaleDialog extends javax.swing.JDialog {
         fieldSaleTotal = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("REALIZAR VENDA");
+        setTitle("ANNA PEGOVA - REALIZAR VENDA");
         setResizable(false);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
@@ -581,7 +581,7 @@ public class SaleDialog extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                SaleDialog dialog = new SaleDialog(new javax.swing.JDialog(), true);
+                SaleDialog dialog = new SaleDialog(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

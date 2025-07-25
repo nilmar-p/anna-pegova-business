@@ -1,14 +1,16 @@
 package forms;
 
-public class Menu extends javax.swing.JDialog {
-    
-    public Menu(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
+import java.awt.Toolkit;
+
+public class Menu extends javax.swing.JFrame {
+
+    public Menu() {
         initComponents();
         setSize(new java.awt.Dimension(1050, 650));
         setLocationRelativeTo(null);
+        setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icon.png")));
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -151,8 +153,8 @@ public class Menu extends javax.swing.JDialog {
     }//GEN-LAST:event_buttonStockActionPerformed
 
     private void buttonSummariesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSummariesActionPerformed
-        SummariesDialog summariesDialog = new SummariesDialog(Menu.this, true);
-        
+        SummariesDialog summariesDialog = new SummariesDialog(this, true);
+
         summariesDialog.setVisible(true);
     }//GEN-LAST:event_buttonSummariesActionPerformed
 
@@ -167,9 +169,6 @@ public class Menu extends javax.swing.JDialog {
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
@@ -177,29 +176,17 @@ public class Menu extends javax.swing.JDialog {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Menu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Menu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Menu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(Menu.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
-        /* Create and display the dialog */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                Menu dialog = new Menu(new javax.swing.JFrame(), true);
-                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
-                    @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
-                        System.exit(0);
-                    }
-                });
-                dialog.setVisible(true);
-            }
+        /* Create and display the frame */
+        java.awt.EventQueue.invokeLater(() -> {
+            Menu frame = new Menu();
+            frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+            frame.setVisible(true);
         });
     }
 

@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import javax.swing.JOptionPane;
 
 import utils.Json;
 
@@ -78,7 +79,7 @@ public class Product {
             return newId;
 
         } catch (Exception e) {
-            System.out.println("ERRO NA CRIACAO DE ID");
+            JOptionPane.showMessageDialog(null, "Erro na criação de ID!", "ERRO!", JOptionPane.ERROR_MESSAGE);
             return ThreadLocalRandom.current().nextInt(1000, 10000);
         }
     }

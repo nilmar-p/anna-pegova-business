@@ -23,7 +23,7 @@ public class StockDialog extends javax.swing.JDialog {
         return selectedProduct;
     }
 
-    public StockDialog(java.awt.Dialog parent, boolean modal) {
+    public StockDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(null);
@@ -379,7 +379,7 @@ public class StockDialog extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                StockDialog dialog = new StockDialog(new javax.swing.JDialog(), true);
+                StockDialog dialog = new StockDialog(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

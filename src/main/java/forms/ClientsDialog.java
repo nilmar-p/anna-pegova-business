@@ -24,7 +24,7 @@ public class ClientsDialog extends javax.swing.JDialog {
     }
 
     //
-    public ClientsDialog(java.awt.Dialog parent, boolean modal) {
+    public ClientsDialog(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(null);
@@ -303,14 +303,12 @@ public class ClientsDialog extends javax.swing.JDialog {
 
                 try {
                     client = (Client) Json.returnRowAsObject(clientId, 1);
-                    System.out.println(client);
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(null, "ERRO AO ABRIR PAINEL DE VISUALIZAÇÃO!", "ERRO!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
                 selectedClient = client;
-                System.out.println("ID PEGO COM SUCESSO" + selectedClient.getId());
 
                 ModalViewClient modalView = new ModalViewClient(ClientsDialog.this, true);
                 modalView.setVisible(true);
@@ -326,14 +324,12 @@ public class ClientsDialog extends javax.swing.JDialog {
 
                 try {
                     client = (Client) Json.returnRowAsObject(clientId, 1);
-                    System.out.println(client);
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(null, "ERRO AO ABRIR PAINEL DE EDIÇÃO!", "ERRO!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
                 selectedClient = client;
-                System.out.println("ID PEGO COM SUCESSO" + selectedClient.getId());
 
                 ModalEditClient modalView = new ModalEditClient(ClientsDialog.this, true);
                 modalView.setVisible(true);
@@ -377,7 +373,7 @@ public class ClientsDialog extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ClientsDialog dialog = new ClientsDialog(new javax.swing.JDialog(), true);
+                ClientsDialog dialog = new ClientsDialog(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
