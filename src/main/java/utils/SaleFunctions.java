@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -33,7 +34,7 @@ public class SaleFunctions {
             double percentageDiscount,
             double numberOfInstallments,
             List<Date> allBillingDates
-    ) {
+    ) throws IOException {
         StringBuilder productsHtml = new StringBuilder();
 
         for (int i = 0; i < productsSold.size(); i++) {

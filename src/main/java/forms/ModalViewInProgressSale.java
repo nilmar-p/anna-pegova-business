@@ -266,8 +266,6 @@ public class ModalViewInProgressSale extends javax.swing.JDialog {
     }//GEN-LAST:event_formWindowOpened
 
     private void chargeCurrentInstallmentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chargeCurrentInstallmentActionPerformed
-        Sale selectedSale = SummariesDialog.getSelectedSale();
-
         int choice = JOptionPane.showConfirmDialog(
                 null,
                 "Deseja marcar parcela atual como paga?",

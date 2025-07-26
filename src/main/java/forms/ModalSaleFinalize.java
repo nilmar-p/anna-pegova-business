@@ -267,8 +267,12 @@ public class ModalSaleFinalize extends javax.swing.JDialog {
             productsSold.add(item);
         }
 
-        isPucharseCompleted = SaleFunctions.finishSale(productsSold, getSelectedClient(), netValue, totalSale, absoluteDiscount,
-                percentageDiscount, numberOfInstallments, allBillingDates);
+        try {
+            isPucharseCompleted = SaleFunctions.finishSale(productsSold, getSelectedClient(), netValue, totalSale, absoluteDiscount,
+                    percentageDiscount, numberOfInstallments, allBillingDates);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         if (isPucharseCompleted) {
 

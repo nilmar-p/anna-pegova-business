@@ -52,18 +52,26 @@ public class Json {
         switch (type) {
             case 0 -> {
                 filePath = getProductsFileLocation();
-                typeReference = new TypeReference<List<Product>>() {
-                };
+                typeReference = new TypeReference<List<Product>>() {};
             }
             case 1 -> {
                 filePath = getClientsFileLocation();
-                typeReference = new TypeReference<List<Client>>() {
-                };
+                typeReference = new TypeReference<List<Client>>() {};
             }
             case 2 -> {
                 filePath = getSalesFileLocation();
-                typeReference = new TypeReference<List<Sale>>() {
-                };
+                typeReference = new TypeReference<List<Sale>>() {};
+
+                // Cria o diretório do arquivo de vendas concluídas
+                Path completedSalesPath = Json.getCompletedSalesFileLocation();
+                Files.createDirectories(completedSalesPath.getParent());
+
+                // Cria o arquivo se ele ainda não existir
+                if (!Files.exists(completedSalesPath)) {
+                    Files.writeString(completedSalesPath, "[]", StandardCharsets.UTF_8,
+                            StandardOpenOption.CREATE,
+                            StandardOpenOption.WRITE);
+                }
             }
             default -> throw new IllegalArgumentException("Tipo inválido: " + type);
         }
@@ -92,6 +100,7 @@ public class Json {
                 StandardOpenOption.TRUNCATE_EXISTING,
                 StandardOpenOption.WRITE);
     }
+
 
     public static void refreshTableByType(JTable table, int type) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
@@ -156,9 +165,6 @@ public class Json {
         List<Sale> sales = mapper.readValue(new File(String.valueOf(getSalesFileLocation())), new TypeReference<List<Sale>>() {
         });
 
-        List<Sale> completedSales = mapper.readValue(new File(String.valueOf(getCompletedSalesFileLocation())), new TypeReference<List<Sale>>() {
-        });
-
         for (Sale sale : sales) {
 
             Object[] saleA = {
@@ -170,6 +176,9 @@ public class Json {
             currentSalesTableModel.addRow(saleA);
 
         }
+        
+        List<Sale> completedSales = mapper.readValue(new File(String.valueOf(getCompletedSalesFileLocation())), new TypeReference<List<Sale>>() {
+        });
 
         for (Sale completedSale : completedSales) {
 
@@ -373,7 +382,6 @@ public class Json {
             }
 
             case 2 -> {
-                // Lê as listas do arquivo
                 List<Sale> sales = mapper.readValue(new File(String.valueOf(getSalesFileLocation())), new TypeReference<>() {
                 });
                 List<Sale> completedSales = mapper.readValue(new File(String.valueOf(getCompletedSalesFileLocation())), new TypeReference<>() {
@@ -404,7 +412,6 @@ public class Json {
                     }
                 }
 
-                // Salva a lista de vendas em andamento atualizada
                 String salesJson = mapper.writeValueAsString(sales);
                 Files.write(getSalesFileLocation(), salesJson.getBytes(StandardCharsets.UTF_8),
                         StandardOpenOption.CREATE,
