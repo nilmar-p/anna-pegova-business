@@ -302,15 +302,13 @@ public class SummariesDialog extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void buttonCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonCancelActionPerformed
-
-        int selectedRow = tableInProgressSales.getSelectedRow();
-        int saleId = (Integer) tableInProgressSales.getValueAt(selectedRow, 0);
-        
-        if (selectedRow == -1) {
+        if (tableInProgressSales.getSelectedRow() < 0) {
             JOptionPane.showMessageDialog(null, "Você deve selecionar um item da lista!", "ERRO!", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+        int selectedRow = tableInProgressSales.getSelectedRow();
+        int saleId = (Integer) tableInProgressSales.getValueAt(selectedRow, 0);
+
         try {
             Json.updateStockFromCanceledSale(saleId);
         } catch (IOException ex) {

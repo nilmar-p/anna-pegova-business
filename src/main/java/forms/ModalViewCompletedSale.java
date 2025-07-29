@@ -1,7 +1,10 @@
 package forms;
 
+import enums.InstallmentStatus;
+import java.math.BigDecimal;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
+import model.Installment;
 import model.ProductSold;
 import model.Sale;
 import utils.Mask;
@@ -243,23 +246,40 @@ public class ModalViewCompletedSale extends javax.swing.JDialog {
         selectedSale = SummariesDialog.getSelectedSale();
         products = selectedSale.getProductsSold();
 
-        for (int i = 0; i < products.size(); i++) {
-
-            Object[] saleA = {
-                products.get(i).getId(),
-                products.get(i).getName(),
-                products.get(i).getQuantity(),
-                products.get(i).getTotal()
+        for (ProductSold product : products) {
+            Object[] row = {
+                product.getId(),
+                product.getName(),
+                product.getQuantity(),
+                product.getTotal()
             };
-
-            model.addRow(saleA);
+            model.addRow(row);
         }
 
         labelClientName.setText(selectedSale.getClientName());
-        fieldCurrentInstallmentValue.setText(String.format("R$ %.2f", selectedSale.getInstallmentValue()));
-        fieldTotal.setText(String.format("R$ %.2f", selectedSale.getNetValue()));
-        fieldCurrentInstallment.setText(String.format("%d de %d", selectedSale.getActualInstallment(), selectedSale.getAllBillingDates().size()));
-        fieldDueDate.setText(Mask.sdf.format(selectedSale.getNextBillingDate()));
+
+        Installment nextInstallment = selectedSale.getInstallments().stream()
+                .filter(i -> i.getStatus() == InstallmentStatus.PENDING
+                || i.getStatus() == InstallmentStatus.OVERDUE
+                || i.getStatus() == InstallmentStatus.PARTIALLY_PAID)
+                .findFirst()
+                .orElse(null);
+
+        if (nextInstallment != null) {
+            BigDecimal outstanding = nextInstallment.getOutstandingBalance();
+            fieldCurrentInstallmentValue.setText(String.format("R$ %.2f", outstanding));
+            fieldDueDate.setText(Mask.sdf.format(java.sql.Date.valueOf(nextInstallment.getDueDate())));
+
+            int index = selectedSale.getInstallments().indexOf(nextInstallment) + 1;
+            int total = selectedSale.getInstallments().size();
+            fieldCurrentInstallment.setText(String.format("%d de %d", index, total));
+        } else {
+            fieldCurrentInstallmentValue.setText("Quitado");
+            fieldCurrentInstallment.setText("-");
+            fieldDueDate.setText("-");
+        }
+
+        fieldTotal.setText(String.format("R$ %.2f", selectedSale.getTotalValue()));
     }//GEN-LAST:event_formWindowOpened
 
     /**

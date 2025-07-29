@@ -4,6 +4,10 @@ import enums.DiscountType;
 import static forms.SaleDialog.getSelectedClient;
 import static forms.SaleDialog.getSelectedProducts;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -224,52 +228,58 @@ public class ModalSaleFinalize extends javax.swing.JDialog {
             return;
         }
 
-        double discountValue = ((Number) spinnerDiscountValue.getValue()).doubleValue();
+        BigDecimal discountValue = BigDecimal.valueOf(((Number) spinnerDiscountValue.getValue()).doubleValue());
+        BigDecimal netValue = BigDecimal.valueOf(totalSale);
 
-        double netValue = totalSale;
-
-        double absoluteDiscount;
-        double percentageDiscount;
+        BigDecimal absoluteDiscount;
+        BigDecimal percentageDiscount;
 
         switch (comboDiscount.getSelectedIndex()) {
             case 0 -> {
-                absoluteDiscount = 0;
-                percentageDiscount = 0;
+                absoluteDiscount = BigDecimal.ZERO;
+                percentageDiscount = BigDecimal.ZERO;
             }
             case 1 -> {
+                // Desconto em porcentagem
                 percentageDiscount = discountValue;
-                absoluteDiscount = (totalSale * (percentageDiscount / 100.0));
-                netValue -= absoluteDiscount;
-                break;
+                absoluteDiscount = BigDecimal.valueOf(totalSale)
+                        .multiply(percentageDiscount)
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                netValue = netValue.subtract(absoluteDiscount);
             }
             case 2 -> {
+                // Desconto absoluto
                 absoluteDiscount = discountValue;
-                percentageDiscount = (totalSale > 0) ? (absoluteDiscount / totalSale) * 100 : 0.0;
-                netValue -= absoluteDiscount;
-                break;
+                percentageDiscount = totalSale > 0
+                        ? absoluteDiscount.divide(BigDecimal.valueOf(totalSale), 4, RoundingMode.HALF_UP)
+                                .multiply(BigDecimal.valueOf(100))
+                        : BigDecimal.ZERO;
+                netValue = netValue.subtract(absoluteDiscount);
             }
             default ->
                 throw new AssertionError();
         }
 
-        Date startBillingDate = dateBillingDate.getDate();
-        double numberOfInstallments = ((Number) spinnerInstallment.getValue()).doubleValue();
+        Date selectedDate = dateBillingDate.getDate();
+        LocalDate firstDueDate = selectedDate.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
 
-        List<Date> allBillingDates = SaleFunctions.returnAllBillingDates(startBillingDate, numberOfInstallments);
+        int numberOfInstallments = 1;
+
+        Object spinnerValue = spinnerInstallment.getValue();
+        if (spinnerValue instanceof Number) {
+            numberOfInstallments = ((Number) spinnerValue).intValue();
+        }
 
         List<ProductSold> productsSold = new ArrayList<>();
-
-        for (int i = 0; i < getSelectedProducts().size(); i++) {
-            ProductSold actual = getSelectedProducts().get(i);
-
-            ProductSold item = new ProductSold(actual.getId(), actual.getName(), actual.getQuantity(), actual.getTotal());
-
-            productsSold.add(item);
+        for (ProductSold actual : getSelectedProducts()) {
+            productsSold.add(new ProductSold(actual.getId(), actual.getName(), actual.getQuantity(), actual.getTotal()));
         }
 
         try {
-            isPucharseCompleted = SaleFunctions.finishSale(productsSold, getSelectedClient(), netValue, totalSale, absoluteDiscount,
-                    percentageDiscount, numberOfInstallments, allBillingDates);
+            isPucharseCompleted = SaleFunctions.finishSale(getSelectedClient(), productsSold,
+                    numberOfInstallments, netValue, firstDueDate, absoluteDiscount, percentageDiscount);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

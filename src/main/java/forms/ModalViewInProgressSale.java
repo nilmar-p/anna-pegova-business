@@ -1,11 +1,15 @@
 package forms;
 
+import enums.InstallmentStatus;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import model.Installment;
 import model.ProductSold;
 import model.Sale;
 import utils.Json;
@@ -156,7 +160,7 @@ public class ModalViewInProgressSale extends javax.swing.JDialog {
 
         jLabel5.setFont(new java.awt.Font("Segoe UI Semibold", 0, 18)); // NOI18N
         jLabel5.setForeground(new java.awt.Color(51, 51, 51));
-        jLabel5.setText("Parcelas:");
+        jLabel5.setText("P. Atual:");
 
         jLabel6.setFont(new java.awt.Font("Segoe UI Semibold", 0, 18)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(51, 51, 51));
@@ -246,48 +250,64 @@ public class ModalViewInProgressSale extends javax.swing.JDialog {
         selectedSale = SummariesDialog.getSelectedSale();
         products = selectedSale.getProductsSold();
 
-        for (int i = 0; i < products.size(); i++) {
-
-            Object[] saleA = {
-                products.get(i).getId(),
-                products.get(i).getName(),
-                products.get(i).getQuantity(),
-                products.get(i).getTotal()
+        for (ProductSold product : products) {
+            Object[] row = {
+                product.getId(),
+                product.getName(),
+                product.getQuantity(),
+                product.getTotal()
             };
-
-            model.addRow(saleA);
+            model.addRow(row);
         }
 
         labelClientName.setText(selectedSale.getClientName());
-        fieldCurrentInstallmentValue.setText(String.format("R$ %.2f", selectedSale.getInstallmentValue()));
-        fieldTotal.setText(String.format("R$ %.2f", selectedSale.getNetValue()));
-        fieldCurrentInstallment.setText(String.format("%d de %d", selectedSale.getActualInstallment(), selectedSale.getAllBillingDates().size()));
-        fieldDueDate.setText(Mask.sdf.format(selectedSale.getNextBillingDate()));
+
+        Installment nextInstallment = selectedSale.getInstallments().stream()
+                .filter(i -> i.getStatus() == InstallmentStatus.PENDING
+                || i.getStatus() == InstallmentStatus.OVERDUE
+                || i.getStatus() == InstallmentStatus.PARTIALLY_PAID)
+                .findFirst()
+                .orElse(null);
+
+        if (nextInstallment != null) {
+            BigDecimal outstanding = nextInstallment.getOutstandingBalance();
+            fieldCurrentInstallmentValue.setText(String.format("R$ %.2f", outstanding));
+            fieldDueDate.setText(Mask.sdf.format(java.sql.Date.valueOf(nextInstallment.getDueDate())));
+
+            int index = selectedSale.getInstallments().indexOf(nextInstallment) + 1;
+            int total = selectedSale.getInstallments().size();
+            fieldCurrentInstallment.setText(String.format("%d de %d", index, total));
+        } else {
+            fieldCurrentInstallmentValue.setText("Quitado");
+            fieldCurrentInstallment.setText("-");
+            fieldDueDate.setText("-");
+        }
+
+        fieldTotal.setText(String.format("R$ %.2f", selectedSale.getTotalValue()));
     }//GEN-LAST:event_formWindowOpened
 
     private void chargeCurrentInstallmentActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chargeCurrentInstallmentActionPerformed
-        int choice = JOptionPane.showConfirmDialog(
+        String[] options = {"INTEIRA", "PARCIAL"};
+
+        JComboBox<String> comboBillingInstallment = new JComboBox<>(options);
+
+        int choice = JOptionPane.showOptionDialog(this,
+                comboBillingInstallment,
+                "ESCOLHA UMA MODALIDADE DE PAGAMENTO",
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.PLAIN_MESSAGE,
                 null,
-                "Deseja marcar parcela atual como paga?",
-                "Finalizar Venda",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.INFORMATION_MESSAGE
+                null,
+                null
         );
 
         switch (choice) {
-            case JOptionPane.YES_OPTION -> {
+            case JOptionPane.OK_OPTION -> {
                 try {
-                    Json.editIndexFromJson(selectedSale.getId(), selectedSale, 2);
+                    Json.billingInstallment(selectedSale.getId(), comboBillingInstallment.getSelectedIndex());
                 } catch (IOException ex) {
                     Logger.getLogger(ModalViewInProgressSale.class.getName()).log(Level.SEVERE, null, ex);
-                    JOptionPane.showMessageDialog(null, "Erro ao realizar ação!", "ERRO!", JOptionPane.ERROR_MESSAGE);
-
                 }
-
-                break;
-            }
-
-            case JOptionPane.NO_OPTION -> {
                 break;
             }
 

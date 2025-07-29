@@ -4,8 +4,10 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,34 +28,43 @@ public class SaleFunctions {
     private static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
     public static boolean finishSale(
-            List<ProductSold> productsSold,
             Client selectedClient,
-            double netValue,
-            double totalGrossValue,
-            double absoluteDiscount,
-            double percentageDiscount,
-            double numberOfInstallments,
-            List<Date> allBillingDates
+            List<ProductSold> productsSold,
+            int numberOfInstallments,
+            BigDecimal netValue,
+            LocalDate firstDueDate,
+            BigDecimal absoluteDiscount,
+            BigDecimal percentageDiscount
     ) throws IOException {
         StringBuilder productsHtml = new StringBuilder();
 
-        for (int i = 0; i < productsSold.size(); i++) {
-            ProductSold product = productsSold.get(i);
+        for (ProductSold product : productsSold) {
             int qty = product.getQuantity();
-            double totalItem = product.getTotal();
+            BigDecimal totalItem = BigDecimal.valueOf(product.getTotal());
 
             productsHtml.append(String.format(
                     """
-            <tr style='border-bottom:1px solid #dee2e6;'>
-                <td style='padding:6px;'>%s</td>
-                <td style='padding:6px; text-align:center;'>%d</td>
-                <td style='padding:6px; text-align:right;'>R$ %.2f</td>
-            </tr>
-            """, product.getName(), qty, totalItem
+                <tr style='border-bottom:1px solid #dee2e6;'>
+                    <td style='padding:6px;'>%s</td>
+                    <td style='padding:6px; text-align:center;'>%d</td>
+                    <td style='padding:6px; text-align:right;'>R$ %.2f</td>
+                </tr>
+                """, product.getName(), qty, totalItem
             ));
         }
 
-        double installmentValue = netValue / numberOfInstallments;
+        BigDecimal totalGrossValue = netValue.add(absoluteDiscount);
+
+        BigDecimal installmentValue = netValue.divide(
+                BigDecimal.valueOf(numberOfInstallments), 2, RoundingMode.HALF_UP
+        );
+
+        List<LocalDate> allBillingDates = new ArrayList<>();
+        LocalDate current = firstDueDate;
+        for (int i = 0; i < numberOfInstallments; i++) {
+            allBillingDates.add(current);
+            current = current.plusMonths(1);
+        }
 
         String msg = String.format(
                 """
@@ -99,7 +110,7 @@ public class SaleFunctions {
             <tr>
                 <td colspan='3' style='background-color: #f0f4f8; padding: 10px; border-radius: 6px; text-align:center;'>
                     <div style='font-size:14px; color:#0056b3; margin-bottom:5px;'>
-                        <b>%.0f</b> parcelas de <b style='font-size:15px;'>R$ %.2f</b>
+                        <b>%d</b> parcelas de <b style='font-size:15px;'>R$ %.2f</b>
                     </div>
                     <div style='font-size:12px; color:#495057;'>
                         1ª cobrança: <b>%s</b> &nbsp;|&nbsp; Última: <b>%s</b>
@@ -127,8 +138,8 @@ public class SaleFunctions {
                 netValue,
                 numberOfInstallments,
                 installmentValue,
-                sdf.format(allBillingDates.getFirst()),
-                sdf.format(allBillingDates.getLast())
+                sdf.format(java.sql.Date.valueOf(allBillingDates.get(0))),
+                sdf.format(java.sql.Date.valueOf(allBillingDates.get(allBillingDates.size() - 1)))
         );
 
         int choice = JOptionPane.showConfirmDialog(
@@ -144,10 +155,10 @@ public class SaleFunctions {
                 Sale newSale = new Sale(
                         selectedClient.getId(),
                         selectedClient.getName(),
-                        netValue,
-                        installmentValue,
                         productsSold,
-                        allBillingDates
+                        netValue,
+                        numberOfInstallments,
+                        firstDueDate
                 );
 
                 try {

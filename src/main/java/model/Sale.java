@@ -1,12 +1,17 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import javax.swing.JOptionPane;
@@ -16,50 +21,88 @@ public class Sale {
 
     @JsonProperty("id")
     private int id;
+
     @JsonProperty("clientId")
     private final int clientId;
+
     @JsonProperty("clientName")
     private String clientName;
+
     @JsonProperty("productsSold")
     private List<ProductSold> productsSold = new ArrayList<>();
-    @JsonProperty("netValue")
-    private final double netValue;
-    @JsonProperty("installmentValue")
-    private final double installmentValue;
-    @JsonProperty("actualInstallment")
-    private int actualInstallment = 0;
-    @JsonProperty("allBillingDates")
-    private List<Date> allBillingDates;
-    @JsonProperty("nextBillingDate")
-    private Date nextBillingDate;
-    @JsonProperty("completed")
-    public boolean isCompleted = false;
 
-    public Sale(@JsonProperty("clientId") int clientId, @JsonProperty("clientName") String clientName,
-            @JsonProperty("netValue") double netValue, @JsonProperty("installmentValue") double installmentValue,
-            @JsonProperty("productsSold") List<ProductSold> productsSold, @JsonProperty("allBillingDates") List<Date> allBillingDates) {
+    @JsonProperty("totalValue")
+    private final BigDecimal totalValue;
+
+    @JsonProperty("numberOfInstallments")
+    private int numberOfInstallments;
+
+    @JsonProperty("installments")
+    private List<Installment> installments;
+
+    @JsonProperty("completed")
+    private boolean completed = false;
+
+    @JsonProperty("firstDueDate")
+    private LocalDate firstDueDate;
+
+    // desserialization
+    @JsonCreator
+    public Sale(
+            @JsonProperty("id") int id,
+            @JsonProperty("clientId") int clientId,
+            @JsonProperty("clientName") String clientName,
+            @JsonProperty("productsSold") List<ProductSold> productsSold,
+            @JsonProperty("totalValue") BigDecimal totalValue,
+            @JsonProperty("numberOfInstallments") int numberOfInstallments,
+            @JsonProperty("firstDueDate") LocalDate firstDueDate) {
+
+        this.id = id;
+        this.clientId = clientId;
+        this.clientName = clientName;
+        this.productsSold = productsSold != null ? productsSold : new ArrayList<>();
+        this.totalValue = totalValue;
+        this.numberOfInstallments = numberOfInstallments;
+        if (firstDueDate != null && numberOfInstallments > 0) {
+            this.firstDueDate = firstDueDate;
+            this.installments = generateInstallments(numberOfInstallments, totalValue, firstDueDate);
+        } else {
+            this.installments = new ArrayList<>();
+        }
+    }
+
+    // new sale
+    public Sale(int clientId, String clientName, List<ProductSold> productsSold,
+            BigDecimal totalValue, int numberOfInstallments, LocalDate firstDueDate) {
         this.id = generateUniqueClientId();
         this.clientId = clientId;
         this.clientName = clientName;
-
-        this.productsSold = productsSold;
-
-        this.netValue = netValue;
-        this.installmentValue = installmentValue;
-        this.allBillingDates = allBillingDates;
-        this.setActualInstallment();
+        this.productsSold = productsSold != null ? productsSold : new ArrayList<>();
+        this.totalValue = totalValue;
+        this.numberOfInstallments = numberOfInstallments;
+        if (firstDueDate != null && numberOfInstallments > 0) {
+            this.firstDueDate = firstDueDate;
+            System.out.println(this.firstDueDate);
+            this.installments = generateInstallments(numberOfInstallments, totalValue, firstDueDate);
+        } else {
+            this.installments = new ArrayList<>();
+        }
     }
 
-    //
-    private int generateUniqueClientId() {
+    private static int generateUniqueClientId() {
         try {
             ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
             mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
             Path fileLocation = Json.getSalesFileLocation();
             Files.createDirectories(fileLocation.getParent());
 
-            List<Product> products = new ArrayList<>();
+            List<Sale> sales = new ArrayList<>();
+            if (Files.exists(fileLocation)) {
+                sales = mapper.readValue(fileLocation.toFile(),
+                        mapper.getTypeFactory().constructCollectionType(List.class, Sale.class));
+            }
 
             int newId;
             boolean idExists;
@@ -68,8 +111,8 @@ public class Sale {
                 newId = ThreadLocalRandom.current().nextInt(10000, 99999);
                 idExists = false;
 
-                for (Product product : products) {
-                    if (product.getId() == newId) {
+                for (Sale sale : sales) {
+                    if (sale.getId() == newId) {
                         idExists = true;
                         break;
                     }
@@ -78,13 +121,27 @@ public class Sale {
 
             return newId;
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             JOptionPane.showMessageDialog(null, "Erro na criação de ID!", "ERRO!", JOptionPane.ERROR_MESSAGE);
             return ThreadLocalRandom.current().nextInt(1000, 10000);
         }
     }
 
-    //getters and setters
+    public static List<Installment> generateInstallments(int numberOfInstallments, BigDecimal totalValue, LocalDate firstDueDate) {
+        List<Installment> installments = new ArrayList<>();
+
+        BigDecimal installmentValue = totalValue.divide(BigDecimal.valueOf(numberOfInstallments), 2, RoundingMode.HALF_UP);
+        LocalDate currentDueDate = firstDueDate;
+
+        for (int i = 1; i <= numberOfInstallments; i++) {
+            installments.add(new Installment(i, installmentValue, currentDueDate));
+            currentDueDate = currentDueDate.plusMonths(1);
+        }
+
+        return installments;
+    }
+
+    // Getters
     public int getId() {
         return id;
     }
@@ -97,31 +154,31 @@ public class Sale {
         return clientName;
     }
 
-    public double getNetValue() {
-        return netValue;
-    }
-
-    public double getInstallmentValue() {
-        return installmentValue;
-    }
-
-    public int getActualInstallment() {
-        return actualInstallment;
-    }
-
-    public List<Date> getAllBillingDates() {
-        return allBillingDates;
-    }
-
-    public Date getNextBillingDate() {
-        return nextBillingDate;
-    }
-
     public List<ProductSold> getProductsSold() {
         return productsSold;
     }
 
-    //
+    public BigDecimal getTotalValue() {
+        return totalValue;
+    }
+
+    public int getNumberOfInstallments() {
+        return numberOfInstallments;
+    }
+
+    public List<Installment> getInstallments() {
+        return installments;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public LocalDate getFirstDueDate() {
+        return firstDueDate;
+    }
+
+    // Setters
     public void setId(int id) {
         this.id = id;
     }
@@ -130,26 +187,19 @@ public class Sale {
         this.clientName = clientName;
     }
 
-    public void setActualInstallment() {
-        this.actualInstallment++;
-        setNextBillingDateAs(allBillingDates.get(actualInstallment - 1));
-    }
-
-    public void setAllBillingDates(List<Date> allBillingDates) {
-        this.allBillingDates = allBillingDates;
-    }
-
-    public void setNextBillingDateAs(Date nextBillingDate) {
-        this.nextBillingDate = nextBillingDate;
-    }
-
-    public void setCompleted(boolean isCompleted) {
-        this.isCompleted = isCompleted;
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 
     @Override
     public String toString() {
-        return "Sale{" + "id=" + id + ", clientId=" + clientId + ", clientName=" + clientName + ", productsSold=" + productsSold + ", netValue=" + netValue + ", installmentValue=" + installmentValue + ", actualInstallment=" + actualInstallment + ", allBillingDates=" + allBillingDates + ", nextBillingDate=" + nextBillingDate + ", isCompleted=" + isCompleted + '}';
+        return "Sale{"
+                + "id=" + id
+                + ", clientId=" + clientId
+                + ", clientName='" + clientName + '\''
+                + ", productsSold=" + productsSold
+                + ", totalValue=" + totalValue
+                + ", installments=" + installments
+                + '}';
     }
-
 }

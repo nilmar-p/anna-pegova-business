@@ -3,14 +3,19 @@ package utils;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import enums.InstallmentStatus;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -18,6 +23,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import model.Client;
+import model.Installment;
 import model.Product;
 import model.ProductSold;
 import model.Sale;
@@ -45,62 +51,87 @@ public class Json {
     public static void saveItemByType(Object newItem, int type) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         Path filePath;
-        TypeReference<?> typeReference;
 
         switch (type) {
             case 0 -> {
                 filePath = getProductsFileLocation();
-                typeReference = new TypeReference<List<Product>>() {};
+                Files.createDirectories(filePath.getParent());
+
+                List<Product> products = new ArrayList<>();
+
+                if (Files.exists(filePath)) {
+                    String content = Files.readString(filePath);
+                    if (!content.isBlank()) {
+                        products = new ArrayList<>(mapper.readValue(content, new TypeReference<List<Product>>() {
+                        }));
+                    }
+                }
+
+                products.add((Product) newItem);
+                String json = mapper.writeValueAsString(products);
+                Files.writeString(filePath, json, StandardCharsets.UTF_8,
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING);
             }
+
             case 1 -> {
                 filePath = getClientsFileLocation();
-                typeReference = new TypeReference<List<Client>>() {};
+                Files.createDirectories(filePath.getParent());
+
+                List<Client> clients = new ArrayList<>();
+
+                if (Files.exists(filePath)) {
+                    String content = Files.readString(filePath);
+                    if (!content.isBlank()) {
+                        clients = new ArrayList<>(mapper.readValue(content, new TypeReference<List<Client>>() {
+                        }));
+                    }
+                }
+
+                clients.add((Client) newItem);
+                String json = mapper.writeValueAsString(clients);
+                Files.writeString(filePath, json, StandardCharsets.UTF_8,
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING);
             }
+
             case 2 -> {
                 filePath = getSalesFileLocation();
-                typeReference = new TypeReference<List<Sale>>() {};
+                Files.createDirectories(filePath.getParent());
 
-                // Cria o diretório do arquivo de vendas concluídas
-                Path completedSalesPath = Json.getCompletedSalesFileLocation();
+                Path completedSalesPath = getCompletedSalesFileLocation();
                 Files.createDirectories(completedSalesPath.getParent());
-
-                // Cria o arquivo se ele ainda não existir
                 if (!Files.exists(completedSalesPath)) {
                     Files.writeString(completedSalesPath, "[]", StandardCharsets.UTF_8,
                             StandardOpenOption.CREATE,
                             StandardOpenOption.WRITE);
                 }
-            }
-            default -> throw new IllegalArgumentException("Tipo inválido: " + type);
-        }
 
-        Files.createDirectories(filePath.getParent());
+                List<Sale> sales = new ArrayList<>();
 
-        List<Object> items = new ArrayList<>();
-
-        if (Files.exists(filePath)) {
-            try {
-                String content = Files.readString(filePath);
-                if (!content.isEmpty()) {
-                    items = (List<Object>) mapper.readValue(content, typeReference);
+                if (Files.exists(filePath)) {
+                    String content = Files.readString(filePath);
+                    if (!content.isBlank()) {
+                        sales = new ArrayList<>(mapper.readValue(content, new TypeReference<List<Sale>>() {
+                        }));
+                    }
                 }
-            } catch (IOException e) {
-                System.err.println("Erro ao ler arquivo existente: " + e.getMessage());
+
+                sales.add((Sale) newItem);
+                String json = mapper.writeValueAsString(sales);
+                Files.writeString(filePath, json, StandardCharsets.UTF_8,
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING);
             }
+
+            default ->
+                throw new IllegalArgumentException("Tipo inválido: " + type);
         }
-
-        items.add(newItem);
-
-        String json = mapper.writeValueAsString(items);
-
-        Files.write(filePath, json.getBytes(StandardCharsets.UTF_8),
-                StandardOpenOption.CREATE,
-                StandardOpenOption.TRUNCATE_EXISTING,
-                StandardOpenOption.WRITE);
     }
-
 
     public static void refreshTableByType(JTable table, int type) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
@@ -156,46 +187,65 @@ public class Json {
 
     public static void refreshSummariesTables(JTable currentSalesTable, JTable completedSalesTable) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
         DefaultTableModel currentSalesTableModel = (DefaultTableModel) currentSalesTable.getModel();
         DefaultTableModel completedSalesTableModel = (DefaultTableModel) completedSalesTable.getModel();
 
         currentSalesTableModel.setRowCount(0);
         completedSalesTableModel.setRowCount(0);
 
-        List<Sale> sales = mapper.readValue(new File(String.valueOf(getSalesFileLocation())), new TypeReference<List<Sale>>() {
-        });
+        List<Sale> sales = new ArrayList<>();
+        List<Sale> completedSales = new ArrayList<>();
+
+        Path salesPath = getSalesFileLocation();
+        Path completedSalesPath = getCompletedSalesFileLocation();
+
+        if (Files.exists(salesPath)) {
+            sales = mapper.readValue(salesPath.toFile(), mapper.getTypeFactory().constructCollectionType(List.class, Sale.class));
+        }
+
+        if (Files.exists(completedSalesPath)) {
+            completedSales = mapper.readValue(completedSalesPath.toFile(), mapper.getTypeFactory().constructCollectionType(List.class, Sale.class));
+        }
 
         for (Sale sale : sales) {
+            BigDecimal total = sale.getTotalValue();
 
-            Object[] saleA = {
+            LocalDate nextDueDate = sale.getInstallments().stream()
+                    .filter(i -> i.getStatus() != InstallmentStatus.PAID)
+                    .map(Installment::getDueDate)
+                    .findFirst()
+                    .orElse(null);
+
+            Object[] rowData = {
                 sale.getId(),
-                String.format("R$ %.2f", sale.getNetValue()),
+                String.format("R$ %.2f", total),
                 String.format("%d - %s", sale.getClientId(), sale.getClientName()),
-                Mask.sdf.format(sale.getNextBillingDate())
+                nextDueDate != null ? Mask.sdf.format(java.sql.Date.valueOf(nextDueDate)) : "CONCLUÍDA"
             };
-            currentSalesTableModel.addRow(saleA);
-
+            currentSalesTableModel.addRow(rowData);
         }
-        
-        List<Sale> completedSales = mapper.readValue(new File(String.valueOf(getCompletedSalesFileLocation())), new TypeReference<List<Sale>>() {
-        });
 
         for (Sale completedSale : completedSales) {
+            BigDecimal total = completedSale.getTotalValue();
 
-            Object[] saleA = {
+            Object[] rowData = {
                 completedSale.getId(),
-                String.format("R$ %.2f", completedSale.getNetValue()),
+                String.format("R$ %.2f", total),
                 String.format("%d - %s", completedSale.getClientId(), completedSale.getClientName()),
-                Mask.sdf.format(completedSale.getNextBillingDate())
+                "CONCLUÍDA"
             };
-            completedSalesTableModel.addRow(saleA);
-
+            completedSalesTableModel.addRow(rowData);
         }
-
     }
 
     public static Object returnRowAsObject(int itemId, int type) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         switch (type) {
             case 0 -> {
@@ -263,6 +313,8 @@ public class Json {
     public static void deleteIndexFromJson(JTable tableRegistereds, Path fileLocation, int type) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         Files.createDirectories(fileLocation.getParent());
 
@@ -380,46 +432,6 @@ public class Json {
                         StandardOpenOption.WRITE);
                 break;
             }
-
-            case 2 -> {
-                List<Sale> sales = mapper.readValue(new File(String.valueOf(getSalesFileLocation())), new TypeReference<>() {
-                });
-                List<Sale> completedSales = mapper.readValue(new File(String.valueOf(getCompletedSalesFileLocation())), new TypeReference<>() {
-                });
-
-                Iterator<Sale> iterator = sales.iterator();
-
-                while (iterator.hasNext()) {
-                    Sale sale = iterator.next();
-
-                    if (sale.getId() == idEditedItem) {
-                        if (sale.getActualInstallment() < sale.getAllBillingDates().size()) {
-                            sale.setActualInstallment();
-                        } else {
-                            sale.setCompleted(true);
-
-                            iterator.remove();
-
-                            completedSales.add(sale);
-
-                            String completedJson = mapper.writeValueAsString(completedSales);
-                            Files.write(getCompletedSalesFileLocation(), completedJson.getBytes(StandardCharsets.UTF_8),
-                                    StandardOpenOption.CREATE,
-                                    StandardOpenOption.TRUNCATE_EXISTING,
-                                    StandardOpenOption.WRITE);
-                        }
-                        break;
-                    }
-                }
-
-                String salesJson = mapper.writeValueAsString(sales);
-                Files.write(getSalesFileLocation(), salesJson.getBytes(StandardCharsets.UTF_8),
-                        StandardOpenOption.CREATE,
-                        StandardOpenOption.TRUNCATE_EXISTING,
-                        StandardOpenOption.WRITE);
-                break;
-            }
-
             default ->
                 throw new AssertionError();
         }
@@ -452,6 +464,8 @@ public class Json {
     public static void updateStockFromCanceledSale(int saleId) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         Files.createDirectories(Json.getProductsFileLocation().getParent());
         String contentProducts = Files.exists(Json.getProductsFileLocation()) ? Files.readString(Json.getProductsFileLocation()) : "[]";
@@ -480,5 +494,108 @@ public class Json {
         }
 
         mapper.writeValue(Json.getProductsFileLocation().toFile(), products);
+    }
+
+    public static void billingInstallment(int saleId, int type) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+
+        List<Sale> sales = mapper.readValue(
+                new File(String.valueOf(getSalesFileLocation())),
+                new TypeReference<>() {
+        }
+        );
+        List<Sale> completedSales = mapper.readValue(
+                new File(String.valueOf(getCompletedSalesFileLocation())),
+                new TypeReference<>() {
+        }
+        );
+
+        Iterator<Sale> iterator = sales.iterator();
+
+        while (iterator.hasNext()) {
+            Sale sale = iterator.next();
+
+            if (sale.getId() == saleId) {
+                Installment nextInstallment = sale.getInstallments().stream()
+                        .filter(i -> i.getStatus() == InstallmentStatus.PENDING || i.getStatus() == InstallmentStatus.OVERDUE || i.getStatus() == InstallmentStatus.PARTIALLY_PAID)
+                        .findFirst()
+                        .orElse(null);
+
+                if (nextInstallment == null) {
+                    JOptionPane.showMessageDialog(null, "Nenhuma parcela pendente encontrada.");
+                    return;
+                }
+
+                BigDecimal valueToPay;
+
+                switch (type) {
+                    case 0 -> {
+                        valueToPay = nextInstallment.getOutstandingBalance();
+                    }
+                    case 1 -> {
+                        BigDecimal max = nextInstallment.getOutstandingBalance();
+                        javax.swing.SpinnerNumberModel model = new javax.swing.SpinnerNumberModel(
+                                max.doubleValue(),
+                                0.01,
+                                max.doubleValue(),
+                                0.01
+                        );
+                        javax.swing.JSpinner spinner = new javax.swing.JSpinner(model);
+                        int result = JOptionPane.showOptionDialog(
+                                null,
+                                spinner,
+                                "<html><b>Informe o valor do pagamento:</b></html>",
+                                JOptionPane.OK_CANCEL_OPTION,
+                                JOptionPane.PLAIN_MESSAGE,
+                                null,
+                                null,
+                                null
+                        );
+                        if (result != JOptionPane.OK_OPTION) {
+                            return;
+                        }
+                        valueToPay = BigDecimal.valueOf((Double) spinner.getValue()).setScale(2, RoundingMode.HALF_UP);
+                    }
+                    default -> {
+                        JOptionPane.showMessageDialog(null, "Tipo inválido.");
+                        return;
+                    }
+                }
+
+                nextInstallment.addPayment(valueToPay);
+
+                boolean allPaid = sale.getInstallments().stream()
+                        .allMatch(i -> i.getStatus() == InstallmentStatus.PAID);
+
+                if (allPaid) {
+                    sale.setCompleted(true);
+                    iterator.remove();
+                    completedSales.add(sale);
+                }
+
+                break;
+            }
+        }
+
+        String salesJson = mapper.writeValueAsString(sales);
+        Files.write(
+                getSalesFileLocation(),
+                salesJson.getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING,
+                StandardOpenOption.WRITE
+        );
+
+        String completedJson = mapper.writeValueAsString(completedSales);
+        Files.write(
+                getCompletedSalesFileLocation(),
+                completedJson.getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING,
+                StandardOpenOption.WRITE
+        );
     }
 }

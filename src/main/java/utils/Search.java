@@ -2,6 +2,7 @@ package utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import enums.InstallmentStatus;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -11,6 +12,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import model.Client;
+import model.Installment;
 import model.Product;
 import model.Sale;
 import static utils.Json.getProductsFileLocation;
@@ -65,18 +67,27 @@ public class Search {
 
                 for (Sale sale : sales) {
                     if (sale.getClientName().startsWith(search)) {
+                        Installment nextInstallment = sale.getInstallments().stream()
+                                .filter(i -> i.getStatus() == InstallmentStatus.PENDING
+                                || i.getStatus() == InstallmentStatus.OVERDUE
+                                || i.getStatus() == InstallmentStatus.PARTIALLY_PAID)
+                                .findFirst()
+                                .orElse(null);
+
+                        String formattedDate = nextInstallment != null
+                                ? Mask.sdf.format(java.sql.Date.valueOf(nextInstallment.getDueDate()))
+                                : "-";
+
                         Object[] saleA = {
                             sale.getId(),
-                            String.format("R$ %.2f", sale.getNetValue()),
+                            String.format("R$ %.2f", sale.getTotalValue()),
                             String.format("%d - %s", sale.getClientId(), sale.getClientName()),
-                            Mask.sdf.format(sale.getNextBillingDate())
+                            formattedDate
                         };
 
                         tableRegisteredsModel.addRow(saleA);
                     }
-
                 }
-
                 break;
             }
 
@@ -88,16 +99,14 @@ public class Search {
                     if (sale.getClientName().startsWith(search)) {
                         Object[] saleA = {
                             sale.getId(),
-                            String.format("R$ %.2f", sale.getNetValue()),
+                            String.format("R$ %.2f", sale.getTotalValue()),
                             String.format("%d - %s", sale.getClientId(), sale.getClientName()),
-                            Mask.sdf.format(sale.getNextBillingDate())
+                            "-"
                         };
 
                         tableRegisteredsModel.addRow(saleA);
                     }
-
                 }
-
                 break;
             }
             default ->
