@@ -24,10 +24,10 @@ public class ModalSaleFinalize extends javax.swing.JDialog {
 
     public boolean isPucharseCompleted;
 
-    private static double totalSale;
+    private static BigDecimal totalSale;
 
     //
-    public static double getTotalSale() {
+    public static BigDecimal getTotalSale() {
         return totalSale;
     }
 
@@ -229,7 +229,7 @@ public class ModalSaleFinalize extends javax.swing.JDialog {
         }
 
         BigDecimal discountValue = BigDecimal.valueOf(((Number) spinnerDiscountValue.getValue()).doubleValue());
-        BigDecimal netValue = BigDecimal.valueOf(totalSale);
+        BigDecimal netValue = totalSale;
 
         BigDecimal absoluteDiscount;
         BigDecimal percentageDiscount;
@@ -242,7 +242,7 @@ public class ModalSaleFinalize extends javax.swing.JDialog {
             case 1 -> {
                 // Desconto em porcentagem
                 percentageDiscount = discountValue;
-                absoluteDiscount = BigDecimal.valueOf(totalSale)
+                absoluteDiscount = totalSale
                         .multiply(percentageDiscount)
                         .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
                 netValue = netValue.subtract(absoluteDiscount);
@@ -250,10 +250,11 @@ public class ModalSaleFinalize extends javax.swing.JDialog {
             case 2 -> {
                 // Desconto absoluto
                 absoluteDiscount = discountValue;
-                percentageDiscount = totalSale > 0
-                        ? absoluteDiscount.divide(BigDecimal.valueOf(totalSale), 4, RoundingMode.HALF_UP)
+                percentageDiscount = totalSale.compareTo(BigDecimal.ZERO) > 0
+                        ? absoluteDiscount.divide(totalSale, 4, RoundingMode.HALF_UP)
                                 .multiply(BigDecimal.valueOf(100))
                         : BigDecimal.ZERO;
+
                 netValue = netValue.subtract(absoluteDiscount);
             }
             default ->

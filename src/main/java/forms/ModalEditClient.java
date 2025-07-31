@@ -307,7 +307,7 @@ public class ModalEditClient extends javax.swing.JDialog {
             return;
         }
 
-        int idToEdit = ClientsDialog.getSelectedClient().getId();
+        String idToEdit = ClientsDialog.getSelectedClient().getId();
 
         dispose();
 

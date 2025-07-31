@@ -57,7 +57,7 @@ public class Mask {
             case 0 -> {
                 for (Object obj : filteredItems) {
                     if (obj instanceof Product product && product.getAmount() > 0) {
-                        model.addElement(String.format("%05d - %s", product.getId(), product.getName()));
+                        model.addElement(String.format("%s - %s", product.getId(), product.getName()));
                     }
                 }
             }
@@ -65,7 +65,7 @@ public class Mask {
             case 1 -> {
                 for (Object obj : filteredItems) {
                     if (obj instanceof Client client) {
-                        model.addElement(String.format("%05d - %s", client.getId(), client.getName()));
+                        model.addElement(String.format("%s - %s", client.getId(), client.getName()));
                     }
                 }
             }

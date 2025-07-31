@@ -154,7 +154,7 @@ public class Json {
                         product.getVolume() + "ml",
                         product.getAmount(),
                         String.format("R$ %.2f", product.getTotal()),
-                        String.format("%d%%", product.getMargin()),
+                        String.format("%f%%", product.getMargin()),
                         String.format("R$ %.2f", product.getProfit())
                     };
                     model.addRow(row);
@@ -242,7 +242,7 @@ public class Json {
         }
     }
 
-    public static Object returnRowAsObject(int itemId, int type) throws IOException {
+    public static Object returnRowAsObject(String itemId, int type) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
@@ -254,7 +254,7 @@ public class Json {
 
                 Product product = null;
                 for (Product checkedProduct : products) {
-                    if (checkedProduct.getId() == itemId) {
+                    if (checkedProduct.getId().equals(itemId)) {
                         product = checkedProduct;
                         break;
                     }
@@ -268,7 +268,7 @@ public class Json {
 
                 Client client = null;
                 for (Client checkedClient : clients) {
-                    if (checkedClient.getId() == itemId) {
+                    if (checkedClient.getId().equals(itemId)) {
                         client = checkedClient;
                         break;
                     }
@@ -281,7 +281,7 @@ public class Json {
 
                 Sale sale = null;
                 for (Sale checkedSale : sales) {
-                    if (checkedSale.getId() == itemId) {
+                    if (checkedSale.getId().equals(itemId)) {
                         sale = checkedSale;
                         break;
                     }
@@ -296,7 +296,7 @@ public class Json {
 
                 Sale sale = null;
                 for (Sale checkedCompletedSale : completedSales) {
-                    if (checkedCompletedSale.getId() == itemId) {
+                    if (checkedCompletedSale.getId().equals(itemId)) {
                         sale = checkedCompletedSale;
                         break;
                     }
@@ -319,6 +319,11 @@ public class Json {
         Files.createDirectories(fileLocation.getParent());
 
         int selectedRow = tableRegistereds.getSelectedRow();
+        if (selectedRow < 0) {
+            JOptionPane.showMessageDialog(null, "Você deve selecionar um item da lista!", "ERRO!",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
         String content = Files.exists(fileLocation) ? Files.readString(fileLocation) : "[]";
 
@@ -341,7 +346,7 @@ public class Json {
             case 0 -> {
                 List<Product> products = mapper.readValue(content, new TypeReference<>() {
                 });
-                products.removeIf(item -> item.getId() == id);
+                products.removeIf(item -> item.getId().equals(id));
                 mapper.writeValue(fileLocation.toFile(), products);
                 refreshTableByType(tableRegistereds, 0);
 
@@ -350,7 +355,7 @@ public class Json {
             case 1 -> {
                 List<Client> clients = mapper.readValue(content, new TypeReference<>() {
                 });
-                clients.removeIf(client -> client.getId() == id);
+                clients.removeIf(client -> client.getId().equals(id));
                 mapper.writeValue(fileLocation.toFile(), clients);
                 refreshTableByType(tableRegistereds, 1);
             }
@@ -358,7 +363,7 @@ public class Json {
             case 2 -> {
                 List<Sale> sales = mapper.readValue(content, new TypeReference<>() {
                 });
-                sales.removeIf(sale -> sale.getId() == id);
+                sales.removeIf(sale -> sale.getId().equals(id));
                 mapper.writeValue(fileLocation.toFile(), sales);
                 refreshSummariesTables(tableRegistereds, tableRegistereds);
             }
@@ -368,7 +373,7 @@ public class Json {
         }
     }
 
-    public static void editIndexFromJson(int idEditedItem, Object editedItem, int type) throws IOException {
+    public static void editIndexFromJson(String idEditedItem, Object editedItem, int type) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
@@ -380,7 +385,7 @@ public class Json {
                 Product editedProduct = (Product) editedItem;
 
                 for (Product product : products) {
-                    if (product.getId() == idEditedItem) {
+                    if (product.getId().equals(idEditedItem)) {
 
                         product.setId(idEditedItem);
 
@@ -408,7 +413,7 @@ public class Json {
                 Client editedClient = (Client) editedItem;
 
                 for (Client client : clients) {
-                    if (client.getId() == idEditedItem) {
+                    if (client.getId().equals(idEditedItem)) {
 
                         client.setId(idEditedItem);
 
@@ -449,7 +454,7 @@ public class Json {
 
         for (ProductSold productSold : productsSold) {
             for (Product product : products) {
-                if (productSold.getId() == product.getId()) {
+                if (productSold.getId().equals(product.getId())) {
                     product.setAmount(product.getAmount() - productSold.getQuantity());
 
                     break;
@@ -480,7 +485,7 @@ public class Json {
         });
 
         for (Sale sale : sales) {
-            if (sale.getId() == saleId) {
+            if (sale.getId().equals(saleId)) {
                 for (int i = 0; i < sale.getProductsSold().size(); i++) {
                     for (Product product : products) {
                         if (product.getId() == sale.getProductsSold().get(i).getId()) {
@@ -496,7 +501,7 @@ public class Json {
         mapper.writeValue(Json.getProductsFileLocation().toFile(), products);
     }
 
-    public static void billingInstallment(int saleId, int type) throws IOException {
+    public static void billingInstallment(String saleId, int type) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         mapper.registerModule(new JavaTimeModule());
@@ -518,7 +523,7 @@ public class Json {
         while (iterator.hasNext()) {
             Sale sale = iterator.next();
 
-            if (sale.getId() == saleId) {
+            if (sale.getId().equals(saleId)) {
                 Installment nextInstallment = sale.getInstallments().stream()
                         .filter(i -> i.getStatus() == InstallmentStatus.PENDING || i.getStatus() == InstallmentStatus.OVERDUE || i.getStatus() == InstallmentStatus.PARTIALLY_PAID)
                         .findFirst()
@@ -534,6 +539,15 @@ public class Json {
                 switch (type) {
                     case 0 -> {
                         valueToPay = nextInstallment.getOutstandingBalance();
+
+                        if (JOptionPane.showConfirmDialog(null, String.format("Realizar pagamento de parcela INTEIRA para a venda id(%s)?", saleId), "ATENÇÃO!", JOptionPane.YES_NO_OPTION,
+                                JOptionPane.WARNING_MESSAGE) != JOptionPane.YES_OPTION) {
+
+                            JOptionPane.showMessageDialog(null, "Operação cancelada!", "ERRO!",
+                                    JOptionPane.ERROR_MESSAGE);
+
+                            return;
+                        }
                     }
                     case 1 -> {
                         BigDecimal max = nextInstallment.getOutstandingBalance();
@@ -557,7 +571,19 @@ public class Json {
                         if (result != JOptionPane.OK_OPTION) {
                             return;
                         }
+
                         valueToPay = BigDecimal.valueOf((Double) spinner.getValue()).setScale(2, RoundingMode.HALF_UP);
+                        BigDecimal originalValue = nextInstallment.getOriginalValue().subtract(nextInstallment.getAmountPaid());
+
+                        if (JOptionPane.showConfirmDialog(null, String.format("Realizar pagamento de parcela PARCIAL para a venda id(%s)? \n"
+                                + "Valor original: R$ %.2f \n"
+                                + "Valor a pagar:  R$ %.2f", saleId, originalValue, valueToPay), "ATENÇÃO!", JOptionPane.YES_NO_OPTION,
+                                JOptionPane.WARNING_MESSAGE) != JOptionPane.YES_OPTION) {
+
+                            JOptionPane.showMessageDialog(null, "Operação cancelada!", "ERRO!",
+                                    JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
                     }
                     default -> {
                         JOptionPane.showMessageDialog(null, "Tipo inválido.");

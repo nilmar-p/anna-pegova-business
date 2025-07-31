@@ -2,20 +2,21 @@ package model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.math.BigDecimal;
 
 public class ProductSold {
 
     @JsonProperty("id")
-    private int id;
+    private String id;
     @JsonProperty("name")
     private String name;
     @JsonProperty("quantity")
     private int quantity;
     @JsonProperty("total")
-    private double total;
+    private BigDecimal total;
 
     @JsonCreator
-    public ProductSold(@JsonProperty("id") int id, @JsonProperty("name") String name, @JsonProperty("quantity") int quantity, @JsonProperty("total") double total) {
+    public ProductSold(@JsonProperty("id") String id, @JsonProperty("name") String name, @JsonProperty("quantity") int quantity, @JsonProperty("total") BigDecimal total) {
         this.id = id;
         this.name = name;
         this.quantity = quantity;
@@ -23,7 +24,7 @@ public class ProductSold {
     }
 
     //getters and setters
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -35,7 +36,7 @@ public class ProductSold {
         return quantity;
     }
 
-    public double getTotal() {
+    public BigDecimal getTotal() {
         return total;
     }
 
@@ -48,7 +49,7 @@ public class ProductSold {
         this.quantity = quantity;
     }
 
-    public void setTotal(double total) {
+    public void setTotal(BigDecimal total) {
         this.total = total;
     }
 

@@ -115,9 +115,9 @@ public class ModalViewInProgressSale extends javax.swing.JDialog {
         tableInProgressSale.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(tableInProgressSale);
         if (tableInProgressSale.getColumnModel().getColumnCount() > 0) {
-            tableInProgressSale.getColumnModel().getColumn(0).setMinWidth(50);
-            tableInProgressSale.getColumnModel().getColumn(0).setPreferredWidth(50);
-            tableInProgressSale.getColumnModel().getColumn(0).setMaxWidth(50);
+            tableInProgressSale.getColumnModel().getColumn(0).setMinWidth(80);
+            tableInProgressSale.getColumnModel().getColumn(0).setPreferredWidth(80);
+            tableInProgressSale.getColumnModel().getColumn(0).setMaxWidth(80);
             tableInProgressSale.getColumnModel().getColumn(2).setMinWidth(100);
             tableInProgressSale.getColumnModel().getColumn(2).setPreferredWidth(100);
             tableInProgressSale.getColumnModel().getColumn(2).setMaxWidth(100);

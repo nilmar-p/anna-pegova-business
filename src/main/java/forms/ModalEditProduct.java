@@ -219,7 +219,7 @@ public class ModalEditProduct extends javax.swing.JDialog {
             return;
         }
 
-        int idToEdit = StockDialog.getSelectedProduct().getId();
+        String idToEdit = StockDialog.getSelectedProduct().getId();
 
         dispose();
 

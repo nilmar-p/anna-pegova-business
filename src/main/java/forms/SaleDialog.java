@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,11 +31,11 @@ import utils.SaleFunctions;
  * @author xnilm
  */
 public class SaleDialog extends javax.swing.JDialog {
-    
-    private static double totalSale;
+
+    private static BigDecimal totalSale;
     private final List<Product> filteredProducts = new ArrayList<>();
     private final List<Client> filteredClients = new ArrayList<>();
-    
+
     private static final List<ProductSold> selectedProducts = new ArrayList<>();
     private static Client selectedClient;
     //
@@ -42,12 +43,12 @@ public class SaleDialog extends javax.swing.JDialog {
     public static List<ProductSold> getSelectedProducts() {
         return selectedProducts;
     }
-    
+
     public static Client getSelectedClient() {
         return selectedClient;
     }
-    
-    public static double getTotalSale() {
+
+    public static BigDecimal getTotalSale() {
         return totalSale;
     }
 
@@ -57,7 +58,7 @@ public class SaleDialog extends javax.swing.JDialog {
         initComponents();
         setLocationRelativeTo(null);
     }
-    
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -252,9 +253,9 @@ public class SaleDialog extends javax.swing.JDialog {
         });
         jScrollPane1.setViewportView(tableSaleSummary);
         if (tableSaleSummary.getColumnModel().getColumnCount() > 0) {
-            tableSaleSummary.getColumnModel().getColumn(0).setMinWidth(50);
-            tableSaleSummary.getColumnModel().getColumn(0).setPreferredWidth(50);
-            tableSaleSummary.getColumnModel().getColumn(0).setMaxWidth(50);
+            tableSaleSummary.getColumnModel().getColumn(0).setMinWidth(80);
+            tableSaleSummary.getColumnModel().getColumn(0).setPreferredWidth(80);
+            tableSaleSummary.getColumnModel().getColumn(0).setMaxWidth(80);
             tableSaleSummary.getColumnModel().getColumn(3).setMinWidth(80);
             tableSaleSummary.getColumnModel().getColumn(3).setPreferredWidth(80);
             tableSaleSummary.getColumnModel().getColumn(3).setMaxWidth(80);
@@ -343,38 +344,38 @@ public class SaleDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_comboClientsActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        totalSale = 0;
+        totalSale = BigDecimal.ZERO;
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        
+
         try {
             String contentP = Files.exists(Json.getProductsFileLocation())
                     ? Files.readString(Json.getProductsFileLocation())
                     : "[]";
-            
+
             String contentC = Files.exists(Json.getClientsFileLocation())
                     ? Files.readString(Json.getClientsFileLocation())
                     : "[]";
-            
+
             List<Product> products = mapper.readValue(contentP, new TypeReference<>() {
             });
-            
+
             List<Client> clients = mapper.readValue(contentC, new TypeReference<>() {
             });
-            
+
             for (Product product : products) {
                 if (product.getAmount() > 0) {
                     filteredProducts.add(product);
                 }
             }
-            
+
             for (Client client : clients) {
                 filteredClients.add(client);
             }
-            
+
             Mask.refreshSaleComboBox(comboProducts, filteredProducts, 0);
             Mask.refreshSaleComboBox(comboClients, filteredClients, 1);
-            
+
         } catch (IOException ex) {
             Logger.getLogger(SaleDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -384,26 +385,26 @@ public class SaleDialog extends javax.swing.JDialog {
         if (comboProducts.getItemCount() != filteredProducts.size()) {
             return;
         }
-        
+
         if (comboProducts.getSelectedItem() == null) {
             spinnerAmount.setEnabled(false);
             return;
         }
-        
+
         int selectedIndex = comboProducts.getSelectedIndex();
-        
+
         if (selectedIndex < 0 || selectedIndex >= filteredProducts.size()) {
             spinnerAmount.setEnabled(false);
             return;
         }
-        
+
         Product selected = filteredProducts.get(selectedIndex);
-        
+
         if (selected.getAmount() <= 0) {
             spinnerAmount.setEnabled(false);
             return;
         }
-        
+
         SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(1, 1, selected.getAmount(), 1);
         spinnerAmount.setModel(spinnerNumberModel);
         spinnerAmount.setEnabled(true);
@@ -411,23 +412,24 @@ public class SaleDialog extends javax.swing.JDialog {
 
     private void buttonProceedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonProceedActionPerformed
         selectedProducts.clear();
-        
+
         if (tableSaleSummary.getRowCount() < 1) {
             JOptionPane.showMessageDialog(null, "Adicione pelo menos um item antes de prosseguir!", "ERRO!", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         for (int i = 0; i < tableSaleSummary.getRowCount(); i++) {
-            int id = ((Integer) tableSaleSummary.getValueAt(i, 0));
+            String id = ((String) tableSaleSummary.getValueAt(i, 0));
             String name = ((String) tableSaleSummary.getValueAt(i, 1));
             int quantity = ((Integer) tableSaleSummary.getValueAt(i, 2));
-            double total = (double) tableSaleSummary.getValueAt(i, 3);
-            
+            BigDecimal total = (BigDecimal) tableSaleSummary.getValueAt(i, 3);
+
             selectedProducts.add(new ProductSold(id, name, quantity, total));
         }
-        
-        int selectedClientId = Integer.parseInt(comboClients.getSelectedItem().toString().substring(0, 5));
-        
+
+        String selectedItem = comboClients.getSelectedItem().toString();
+        String selectedClientId = selectedItem.split(" - ")[0];
+
         ObjectMapper mapper = new ObjectMapper();
         List<Client> clients = new ArrayList<>();
         try {
@@ -436,17 +438,17 @@ public class SaleDialog extends javax.swing.JDialog {
         } catch (IOException ex) {
             Logger.getLogger(SaleDialog.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         for (Client client : clients) {
-            if (client.getId() == selectedClientId) {
+            if (client.getId().equals(selectedClientId)) {
                 selectedClient = client;
                 break;
             }
         }
-        
+
         ModalSaleFinalize modalSaleFinalize = new ModalSaleFinalize(SaleDialog.this, true);
         modalSaleFinalize.setVisible(true);
-        
+
         if (modalSaleFinalize.isPucharseCompleted) {
             dispose();
         }
@@ -457,32 +459,35 @@ public class SaleDialog extends javax.swing.JDialog {
     }//GEN-LAST:event_spinnerAmountStateChanged
 
     private void buttonAddProductActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonAddProductActionPerformed
-        
+
         if (comboClients.getSelectedItem() == null || comboProducts.getSelectedItem() == null) {
             JOptionPane.showMessageDialog(null, "Preencha todos os campos!", "ERRO!", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
-        int selectedProductId = Integer.parseInt(comboProducts.getSelectedItem().toString().substring(0, 5));
-        
+
+        String selectedItem = comboProducts.getSelectedItem().toString();
+        String selectedProductId = selectedItem.split(" - ")[0];
+
         Product selectedProduct = null;
         for (Product filteredProduct : filteredProducts) {
-            if (filteredProduct.getId() == selectedProductId) {
+            if (filteredProduct.getId().equals(selectedProductId)) {
                 selectedProduct = filteredProduct;
                 break;
             }
         }
-        
+
         filteredProducts.remove(selectedProduct);
-        
+
         int amount = ((Number) spinnerAmount.getValue()).intValue();
-        double grossValue = amount * selectedProduct.getPrice();
-        
-        if (grossValue > selectedProduct.getTotal()) {
+        BigDecimal price = selectedProduct.getPrice();
+        BigDecimal quantity = BigDecimal.valueOf(amount);
+        BigDecimal grossValue = price.multiply(quantity);
+
+        if (grossValue.compareTo(selectedProduct.getTotal()) > 0) {
             JOptionPane.showMessageDialog(null, "Erro na venda! (Valor bruto maior que o estoque)", "ERRO!", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         try {
             SaleFunctions.addItemOnSaleSummary(tableSaleSummary, selectedProduct.getId(), amount, grossValue);
         } catch (IOException ex) {
@@ -490,10 +495,10 @@ public class SaleDialog extends javax.swing.JDialog {
             JOptionPane.showMessageDialog(null, "Erro ao adicionar item no resumo!", "ERRO!", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
+
         Mask.refreshSaleComboBox(comboProducts, filteredProducts, 0);
-        
-        totalSale += grossValue;
+
+        totalSale = totalSale.add(grossValue);
         fieldSaleTotal.setText(String.format("%.2f", totalSale));
     }//GEN-LAST:event_buttonAddProductActionPerformed
 
@@ -505,46 +510,46 @@ public class SaleDialog extends javax.swing.JDialog {
         if (!SwingUtilities.isRightMouseButton(evt)) {
             return;
         }
-        
+
         int row = tableSaleSummary.rowAtPoint(evt.getPoint());
-        
+
         if (row < 0) {
             return;
         }
-        
+
         tableSaleSummary.setRowSelectionInterval(row, row);
         tableSaleSummary.setFocusable(true);
         tableSaleSummary.requestFocusInWindow();
-        
+
         JPopupMenu popupMenu = new JPopupMenu();
-        
+
         JMenuItem removeItem = new JMenuItem("Remover");
         removeItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int itemId = (Integer) tableSaleSummary.getValueAt(row, 0);
-                double grossValue = (double) tableSaleSummary.getValueAt(row, 3);
-                
+                String itemId = (String) tableSaleSummary.getValueAt(row, 0);
+                BigDecimal grossValue = (BigDecimal) tableSaleSummary.getValueAt(row, 3);
+
                 Product item = null;
-                
+
                 try {
                     item = (Product) Json.returnRowAsObject(itemId, 0);
                 } catch (IOException ex) {
                     JOptionPane.showMessageDialog(null, "Erro ao remover item!", "ERRO!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                
+
                 filteredProducts.add(item);
-                
+
                 DefaultTableModel model = (DefaultTableModel) tableSaleSummary.getModel();
                 model.removeRow(row);
-                
+
                 Mask.refreshSaleComboBox(comboProducts, filteredProducts, 0);
-                
-                totalSale -= grossValue;
+
+                totalSale = totalSale.subtract(grossValue);
                 fieldSaleTotal.setText(String.format("%.2f", totalSale));
             }
         });
-        
+
         popupMenu.add(removeItem);
         popupMenu.show(tableSaleSummary, evt.getX(), evt.getY());
 
@@ -553,7 +558,7 @@ public class SaleDialog extends javax.swing.JDialog {
     private void tableSaleSummaryComponentAdded(java.awt.event.ContainerEvent evt) {//GEN-FIRST:event_tableSaleSummaryComponentAdded
 
     }//GEN-LAST:event_tableSaleSummaryComponentAdded
-    
+
     public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">

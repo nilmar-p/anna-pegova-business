@@ -2,20 +2,22 @@ package model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import utils.Json;
 
 public class Client {
 
     @JsonProperty("id")
-    private int id;
+    private String id;
 
     @JsonProperty("name")
     private String name;
@@ -44,8 +46,10 @@ public class Client {
     @JsonProperty("cep")
     private String cep;
 
+    // desserialization
     @JsonCreator
     public Client(
+            @JsonProperty("id") String id,
             @JsonProperty("name") String name,
             @JsonProperty("phone") String phone,
             @JsonProperty("cpf") String cpf,
@@ -55,54 +59,66 @@ public class Client {
             @JsonProperty("complement") String complement,
             @JsonProperty("neighborhood") String neighborhood,
             @JsonProperty("cep") String cep) {
-        this.setId(generateUniqueClientId());
-        this.name = name.trim().isEmpty() ? "SEM NOME" : name.trim().toUpperCase();
-        this.phone = phone.trim().isEmpty() ? "SEM TELEFONE" : phone.trim();
-        this.cpf = cpf.trim().isEmpty() ? "SEM CPF" : cpf.trim();
-        this.city = city.trim().isEmpty() ? "SEM CIDADE" : city.trim().toUpperCase();
-        this.street = street.trim().isEmpty() ? "SEM RUA" : street.trim().toUpperCase();
-        this.houseNumber = houseNumber.trim().isEmpty() ? "SEM NUMERO" : houseNumber.trim();
-        this.complement = complement.trim().isEmpty() ? "SEM COMPLEMENTO" : complement.trim().toUpperCase();
-        this.neighborhood = neighborhood.trim().isEmpty() ? "SEM BAIRRO" : neighborhood.trim().toUpperCase();
-        this.cep = cep.trim().isEmpty() ? "SEM CEP" : cep.trim().toUpperCase();
+
+        this.id = id;
+        this.name = (name == null || name.trim().isEmpty()) ? "SEM NOME" : name.trim().toUpperCase();
+        this.phone = (phone == null || phone.trim().isEmpty()) ? "SEM TELEFONE" : phone.trim();
+        this.cpf = (cpf == null || cpf.trim().isEmpty()) ? "SEM CPF" : cpf.trim();
+        this.city = (city == null || city.trim().isEmpty()) ? "SEM CIDADE" : city.trim().toUpperCase();
+        this.street = (street == null || street.trim().isEmpty()) ? "SEM RUA" : street.trim().toUpperCase();
+        this.houseNumber = (houseNumber == null || houseNumber.trim().isEmpty()) ? "SEM NUMERO" : houseNumber.trim();
+        this.complement = (complement == null || complement.trim().isEmpty()) ? "SEM COMPLEMENTO" : complement.trim().toUpperCase();
+        this.neighborhood = (neighborhood == null || neighborhood.trim().isEmpty()) ? "SEM BAIRRO" : neighborhood.trim().toUpperCase();
+        this.cep = (cep == null || cep.trim().isEmpty()) ? "SEM CEP" : cep.trim().toUpperCase();
+    }
+
+    // new client
+    public Client(String name, String phone, String cpf, String city, String street,
+            String houseNumber, String complement, String neighborhood, String cep) {
+
+        this.id = generateUniqueClientId();
+        this.name = (name == null || name.trim().isEmpty()) ? "SEM NOME" : name.trim().toUpperCase();
+        this.phone = (phone == null || phone.trim().isEmpty()) ? "SEM TELEFONE" : phone.trim();
+        this.cpf = (cpf == null || cpf.trim().isEmpty()) ? "SEM CPF" : cpf.trim();
+        this.city = (city == null || city.trim().isEmpty()) ? "SEM CIDADE" : city.trim().toUpperCase();
+        this.street = (street == null || street.trim().isEmpty()) ? "SEM RUA" : street.trim().toUpperCase();
+        this.houseNumber = (houseNumber == null || houseNumber.trim().isEmpty()) ? "SEM NUMERO" : houseNumber.trim();
+        this.complement = (complement == null || complement.trim().isEmpty()) ? "SEM COMPLEMENTO" : complement.trim().toUpperCase();
+        this.neighborhood = (neighborhood == null || neighborhood.trim().isEmpty()) ? "SEM BAIRRO" : neighborhood.trim().toUpperCase();
+        this.cep = (cep == null || cep.trim().isEmpty()) ? "SEM CEP" : cep.trim().toUpperCase();
     }
 
     //
-    private int generateUniqueClientId() {
+    private String generateUniqueClientId() {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            mapper.enable(SerializationFeature.INDENT_OUTPUT);
-
-            Path fileLocation = Json.getClientsFileLocation();
+            Path fileLocation = Json.getProductsFileLocation();
             Files.createDirectories(fileLocation.getParent());
 
-            List<Product> products = new ArrayList<>();
+            List<Product> products = Files.exists(fileLocation)
+                    ? mapper.readValue(fileLocation.toFile(), new TypeReference<List<Product>>() {
+                    })
+                    : new ArrayList<>();
 
-            int newId;
-            boolean idExists;
+            Set<String> existingIds = products.stream()
+                    .map(Product::getId)
+                    .collect(Collectors.toSet());
 
+            String newId;
             do {
-                newId = ThreadLocalRandom.current().nextInt(10000, 99999);
-                idExists = false;
-
-                for (Product product : products) {
-                    if (product.getId() == newId) {
-                        idExists = true;
-                        break;
-                    }
-                }
-            } while (idExists);
+                newId = UUID.randomUUID().toString().substring(0, 8);
+            } while (existingIds.contains(newId));
 
             return newId;
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro na criação de ID!", "ERRO!", JOptionPane.ERROR_MESSAGE);
-            return ThreadLocalRandom.current().nextInt(1000, 10000);
+            JOptionPane.showMessageDialog(null, "Erro ao gerar ID do produto!", "ERRO", JOptionPane.ERROR_MESSAGE);
+            return UUID.randomUUID().toString().substring(0, 8);
         }
     }
 
     // Getters e Setters
-    public int getId() {
+    public String getId() {
         return id;
     }
 
@@ -143,7 +159,7 @@ public class Client {
     }
 
     //
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

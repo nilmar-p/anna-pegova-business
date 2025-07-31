@@ -1,13 +1,15 @@
 package model;
 
 import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.*;
+import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 
 import utils.Json;
@@ -15,7 +17,7 @@ import utils.Json;
 public class Product {
 
     @JsonProperty("id")
-    private int id;
+    private String id;
 
     @JsonProperty("name")
     private String name;
@@ -27,65 +29,78 @@ public class Product {
     private int amount;
 
     @JsonProperty("price")
-    private double price;
+    private BigDecimal price;
 
     @JsonProperty("margin")
-    private int margin;
+    private BigDecimal margin;
 
     @JsonProperty("total")
-    private double total;
+    private BigDecimal total;
 
     @JsonProperty("profit")
-    private double profit;
+    private BigDecimal profit;
 
+    // desserialization
     @JsonCreator
-    public Product(@JsonProperty("name") String name, @JsonProperty("volume") int volume,
-            @JsonProperty("price") double price, @JsonProperty("amount") int amount,
-            @JsonProperty("margin") int margin) {
-        this.setId(generateUniqueClientId());
-        this.name = name.trim().isEmpty() ? "NOME VAZIO" : name.trim().toUpperCase();
-        this.volume = volume < 1 ? 1 : volume;
-        this.amount = amount < 0 ? 0 : amount;
-        this.price = price < 1 ? 1 : price;
-        this.setMargin(margin);
+    public Product(@JsonProperty("id") String id,
+                   @JsonProperty("name") String name,
+                   @JsonProperty("volume") int volume,
+                   @JsonProperty("price") BigDecimal price,
+                   @JsonProperty("amount") int amount,
+                   @JsonProperty("margin") BigDecimal margin) {
+        this.id = id;
+        this.name = (name == null || name.trim().isEmpty()) ? "NOME VAZIO" : name.trim().toUpperCase();
+        this.volume = Math.max(volume, 1);
+        this.amount = Math.max(amount, 0);
+        this.price = price.compareTo(BigDecimal.ONE) < 0 ? BigDecimal.ONE : price;
+        this.margin = margin.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ONE : margin;
+        calculateTotal();
+        calculateProfit();
     }
 
-    //
-    private int generateUniqueClientId() {
+    // new product
+    public Product(String name, int volume, double price, int amount, int margin) {
+        this.id = generateUniqueProductId();
+        this.name = (name == null || name.trim().isEmpty()) ? "NOME VAZIO" : name.trim().toUpperCase();
+        this.volume = Math.max(volume, 1);
+        this.amount = Math.max(amount, 0);
+        this.price = BigDecimal.valueOf(price < 1 ? 1 : price);
+        this.margin = BigDecimal.valueOf(margin < 0 ? 1 : margin);
+        calculateTotal();
+        calculateProfit();
+    }
+
+    private String generateUniqueProductId() {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            mapper.enable(SerializationFeature.INDENT_OUTPUT);
-
             Path fileLocation = Json.getProductsFileLocation();
             Files.createDirectories(fileLocation.getParent());
 
             List<Product> products = new ArrayList<>();
+            if (Files.exists(fileLocation) && Files.size(fileLocation) > 0) {
+                products = mapper.readValue(fileLocation.toFile(), new TypeReference<List<Product>>() {
+                });
+            }
 
-            int newId;
-            boolean idExists;
+            Set<String> existingIds = products.stream()
+                    .map(Product::getId)
+                    .collect(Collectors.toSet());
 
+            String newId;
             do {
-                newId = ThreadLocalRandom.current().nextInt(10000, 99999);
-                idExists = false;
-
-                for (Product product : products) {
-                    if (product.getId() == newId) {
-                        idExists = true;
-                        break;
-                    }
-                }
-            } while (idExists);
+                newId = UUID.randomUUID().toString().substring(0, 8);
+            } while (existingIds.contains(newId));
 
             return newId;
 
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "Erro na criação de ID!", "ERRO!", JOptionPane.ERROR_MESSAGE);
-            return ThreadLocalRandom.current().nextInt(1000, 10000);
+            JOptionPane.showMessageDialog(null, "Erro ao gerar ID do produto!\n" + e.getMessage(), "ERRO", JOptionPane.ERROR_MESSAGE);
+            return UUID.randomUUID().toString().substring(0, 8);
         }
     }
 
-    //getters and setters
-    public int getId() {
+    // getters
+    public String getId() {
         return id;
     }
 
@@ -97,11 +112,11 @@ public class Product {
         return volume;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public int getMargin() {
+    public BigDecimal getMargin() {
         return margin;
     }
 
@@ -109,16 +124,16 @@ public class Product {
         return amount;
     }
 
-    public double getProfit() {
+    public BigDecimal getProfit() {
         return profit;
     }
 
-    public double getTotal() {
+    public BigDecimal getTotal() {
         return total;
     }
 
-    //
-    public void setId(int id) {
+    // setters
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -130,30 +145,33 @@ public class Product {
         this.volume = volume;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
+        calculateTotal();
+        calculateProfit();
     }
 
-    public void setMargin(int margin) {
-        this.margin = margin < 0 ? 1 : margin;
-        this.setTotal();
-        this.setProfit();
+    public void setMargin(BigDecimal margin) {
+        this.margin = margin.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ONE : margin;
+        calculateProfit();
     }
 
     public void setAmount(int amount) {
         this.amount = amount;
+        calculateTotal();
+        calculateProfit();
     }
 
-    public void setTotal() {
-        this.total = this.price * this.amount;
+    private void calculateTotal() {
+        this.total = price.multiply(BigDecimal.valueOf(amount)).setScale(2, RoundingMode.HALF_UP);
     }
 
-    public void setProfit() {
-        this.profit = this.total * ((double) this.margin / 100);
+    private void calculateProfit() {
+        this.profit = total.multiply(margin).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
     }
 
     @Override
     public String toString() {
-        return String.format("Item{name='%s', volume=%d, price=%.2f, margin=%d%%}", name, volume, price, margin);
+        return String.format("Product{name='%s', volume=%d, price=%.2f, margin=%s%%}", name, volume, price, margin);
     }
 }

@@ -13,17 +13,19 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.swing.JOptionPane;
 import utils.Json;
 
 public class Sale {
 
     @JsonProperty("id")
-    private int id;
+    private String id;
 
     @JsonProperty("clientId")
-    private final int clientId;
+    private final String clientId;
 
     @JsonProperty("clientName")
     private String clientName;
@@ -49,8 +51,8 @@ public class Sale {
     // desserialization
     @JsonCreator
     public Sale(
-            @JsonProperty("id") int id,
-            @JsonProperty("clientId") int clientId,
+            @JsonProperty("id") String id,
+            @JsonProperty("clientId") String clientId,
             @JsonProperty("clientName") String clientName,
             @JsonProperty("productsSold") List<ProductSold> productsSold,
             @JsonProperty("totalValue") BigDecimal totalValue,
@@ -72,9 +74,9 @@ public class Sale {
     }
 
     // new sale
-    public Sale(int clientId, String clientName, List<ProductSold> productsSold,
+    public Sale(String clientId, String clientName, List<ProductSold> productsSold,
             BigDecimal totalValue, int numberOfInstallments, LocalDate firstDueDate) {
-        this.id = generateUniqueClientId();
+        this.id = generateUniqueSaleId();
         this.clientId = clientId;
         this.clientName = clientName;
         this.productsSold = productsSold != null ? productsSold : new ArrayList<>();
@@ -82,14 +84,13 @@ public class Sale {
         this.numberOfInstallments = numberOfInstallments;
         if (firstDueDate != null && numberOfInstallments > 0) {
             this.firstDueDate = firstDueDate;
-            System.out.println(this.firstDueDate);
             this.installments = generateInstallments(numberOfInstallments, totalValue, firstDueDate);
         } else {
             this.installments = new ArrayList<>();
         }
     }
 
-    private static int generateUniqueClientId() {
+    private static String generateUniqueSaleId() {
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JavaTimeModule());
@@ -104,26 +105,20 @@ public class Sale {
                         mapper.getTypeFactory().constructCollectionType(List.class, Sale.class));
             }
 
-            int newId;
-            boolean idExists;
+            Set<String> existingIds = sales.stream()
+                    .map(Sale::getId)
+                    .collect(Collectors.toSet());
 
+            String newId;
             do {
-                newId = ThreadLocalRandom.current().nextInt(10000, 99999);
-                idExists = false;
-
-                for (Sale sale : sales) {
-                    if (sale.getId() == newId) {
-                        idExists = true;
-                        break;
-                    }
-                }
-            } while (idExists);
+                newId = UUID.randomUUID().toString().substring(0, 8);
+            } while (existingIds.contains(newId));
 
             return newId;
 
         } catch (IOException e) {
             JOptionPane.showMessageDialog(null, "Erro na criação de ID!", "ERRO!", JOptionPane.ERROR_MESSAGE);
-            return ThreadLocalRandom.current().nextInt(1000, 10000);
+            return UUID.randomUUID().toString().substring(0, 8); // fallback
         }
     }
 
@@ -142,11 +137,11 @@ public class Sale {
     }
 
     // Getters
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public int getClientId() {
+    public String getClientId() {
         return clientId;
     }
 
@@ -179,7 +174,7 @@ public class Sale {
     }
 
     // Setters
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

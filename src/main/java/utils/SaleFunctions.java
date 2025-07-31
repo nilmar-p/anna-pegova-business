@@ -40,7 +40,7 @@ public class SaleFunctions {
 
         for (ProductSold product : productsSold) {
             int qty = product.getQuantity();
-            BigDecimal totalItem = BigDecimal.valueOf(product.getTotal());
+            BigDecimal totalItem = product.getTotal();
 
             productsHtml.append(String.format(
                     """
@@ -193,8 +193,8 @@ public class SaleFunctions {
         return dates;
     }
 
-    public static void addItemOnSaleSummary(JTable tableSaleSummary, int itemId, int itemAmount,
-            double itemTotal) throws IOException {
+    public static void addItemOnSaleSummary(JTable tableSaleSummary, String itemId, int itemAmount,
+            BigDecimal itemTotal) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         DefaultTableModel saleSummaryTableModel = (DefaultTableModel) tableSaleSummary.getModel();
 
@@ -203,7 +203,7 @@ public class SaleFunctions {
 
         for (Product product : products) {
 
-            if (product.getId() == itemId) {
+            if (product.getId().equals(itemId)) {
                 Object[] productA = {
                     product.getId(),
                     product.getName(),

@@ -108,9 +108,9 @@ public class SummariesDialog extends javax.swing.JDialog {
         });
         jScrollPane1.setViewportView(tableInProgressSales);
         if (tableInProgressSales.getColumnModel().getColumnCount() > 0) {
-            tableInProgressSales.getColumnModel().getColumn(0).setMinWidth(50);
-            tableInProgressSales.getColumnModel().getColumn(0).setPreferredWidth(50);
-            tableInProgressSales.getColumnModel().getColumn(0).setMaxWidth(50);
+            tableInProgressSales.getColumnModel().getColumn(0).setMinWidth(80);
+            tableInProgressSales.getColumnModel().getColumn(0).setPreferredWidth(80);
+            tableInProgressSales.getColumnModel().getColumn(0).setMaxWidth(80);
             tableInProgressSales.getColumnModel().getColumn(1).setMinWidth(130);
             tableInProgressSales.getColumnModel().getColumn(1).setPreferredWidth(130);
             tableInProgressSales.getColumnModel().getColumn(1).setMaxWidth(130);
@@ -231,9 +231,9 @@ public class SummariesDialog extends javax.swing.JDialog {
         });
         jScrollPane2.setViewportView(tableCompletedSales);
         if (tableCompletedSales.getColumnModel().getColumnCount() > 0) {
-            tableCompletedSales.getColumnModel().getColumn(0).setMinWidth(50);
-            tableCompletedSales.getColumnModel().getColumn(0).setPreferredWidth(50);
-            tableCompletedSales.getColumnModel().getColumn(0).setMaxWidth(50);
+            tableCompletedSales.getColumnModel().getColumn(0).setMinWidth(80);
+            tableCompletedSales.getColumnModel().getColumn(0).setPreferredWidth(80);
+            tableCompletedSales.getColumnModel().getColumn(0).setMaxWidth(80);
             tableCompletedSales.getColumnModel().getColumn(1).setMinWidth(130);
             tableCompletedSales.getColumnModel().getColumn(1).setPreferredWidth(130);
             tableCompletedSales.getColumnModel().getColumn(1).setMaxWidth(130);
@@ -391,7 +391,7 @@ public class SummariesDialog extends javax.swing.JDialog {
         JMenuItem viewItem = new JMenuItem("Visualizar compra");
         viewItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int saleId = (Integer) tableInProgressSales.getValueAt(row, 0);
+                String saleId = (String) tableInProgressSales.getValueAt(row, 0);
 
                 Sale sale = null;
 
@@ -442,7 +442,7 @@ public class SummariesDialog extends javax.swing.JDialog {
         JMenuItem viewItem = new JMenuItem("Visualizar compra");
         viewItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int saleId = (Integer) tableCompletedSales.getValueAt(row, 0);
+                String saleId = (String) tableCompletedSales.getValueAt(row, 0);
 
                 Sale sale = null;
 

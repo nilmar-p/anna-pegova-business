@@ -152,9 +152,9 @@ public class ClientsDialog extends javax.swing.JDialog {
         });
         jScrollPane1.setViewportView(tableRegistereds);
         if (tableRegistereds.getColumnModel().getColumnCount() > 0) {
-            tableRegistereds.getColumnModel().getColumn(0).setMinWidth(55);
-            tableRegistereds.getColumnModel().getColumn(0).setPreferredWidth(55);
-            tableRegistereds.getColumnModel().getColumn(0).setMaxWidth(55);
+            tableRegistereds.getColumnModel().getColumn(0).setMinWidth(80);
+            tableRegistereds.getColumnModel().getColumn(0).setPreferredWidth(80);
+            tableRegistereds.getColumnModel().getColumn(0).setMaxWidth(80);
             tableRegistereds.getColumnModel().getColumn(1).setMinWidth(450);
             tableRegistereds.getColumnModel().getColumn(1).setPreferredWidth(450);
             tableRegistereds.getColumnModel().getColumn(1).setMaxWidth(450);
@@ -297,7 +297,7 @@ public class ClientsDialog extends javax.swing.JDialog {
         JMenuItem viewItem = new JMenuItem("Visualizar cliente");
         viewItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int clientId = (Integer) tableRegistereds.getValueAt(row, 0);
+                String clientId = (String) tableRegistereds.getValueAt(row, 0);
 
                 Client client = null;
 
@@ -318,7 +318,7 @@ public class ClientsDialog extends javax.swing.JDialog {
         JMenuItem editItem = new JMenuItem("Editar cliente");
         editItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int clientId = (Integer) tableRegistereds.getValueAt(row, 0);
+                String clientId = (String) tableRegistereds.getValueAt(row, 0);
 
                 Client client = null;
 
