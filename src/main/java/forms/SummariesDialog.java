@@ -307,7 +307,7 @@ public class SummariesDialog extends javax.swing.JDialog {
             return;
         }
         int selectedRow = tableInProgressSales.getSelectedRow();
-        int saleId = (Integer) tableInProgressSales.getValueAt(selectedRow, 0);
+        String saleId = (String) tableInProgressSales.getValueAt(selectedRow, 0);
 
         try {
             Json.updateStockFromCanceledSale(saleId);

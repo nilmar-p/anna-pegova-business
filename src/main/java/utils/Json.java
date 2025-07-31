@@ -223,7 +223,7 @@ public class Json {
             Object[] rowData = {
                 sale.getId(),
                 String.format("R$ %.2f", total),
-                String.format("%d - %s", sale.getClientId(), sale.getClientName()),
+                String.format("%s - %s", sale.getClientId(), sale.getClientName()),
                 nextDueDate != null ? Mask.sdf.format(java.sql.Date.valueOf(nextDueDate)) : "CONCLUÍDA"
             };
             currentSalesTableModel.addRow(rowData);
@@ -235,7 +235,7 @@ public class Json {
             Object[] rowData = {
                 completedSale.getId(),
                 String.format("R$ %.2f", total),
-                String.format("%d - %s", completedSale.getClientId(), completedSale.getClientName()),
+                String.format("%s - %s", completedSale.getClientId(), completedSale.getClientName()),
                 "CONCLUÍDA"
             };
             completedSalesTableModel.addRow(rowData);
@@ -327,7 +327,7 @@ public class Json {
 
         String content = Files.exists(fileLocation) ? Files.readString(fileLocation) : "[]";
 
-        int id = Integer.parseInt(tableRegistereds.getValueAt(selectedRow, 0).toString());
+        String id = ((String) tableRegistereds.getValueAt(selectedRow, 0));
         String itemName = tableRegistereds.getValueAt(selectedRow, 1).toString();
 
         int choice = JOptionPane.showConfirmDialog(
@@ -346,10 +346,34 @@ public class Json {
             case 0 -> {
                 List<Product> products = mapper.readValue(content, new TypeReference<>() {
                 });
-                products.removeIf(item -> item.getId().equals(id));
-                mapper.writeValue(fileLocation.toFile(), products);
-                refreshTableByType(tableRegistereds, 0);
 
+                List<Sale> sales = mapper.readValue(Files.exists(getSalesFileLocation()) ? Files.readString(getSalesFileLocation()) : "[]", new TypeReference<>() {
+                });
+
+                boolean found = false;
+                for (Product checkedProduct : products) {
+                    if (checkedProduct.getId().equals(id)) {
+
+                        if (isProductInOngoingSale(id, sales)) {
+                            JOptionPane.showMessageDialog(null, String.format(
+                                    "Existe uma venda em andamento com este item.\nConclua a venda antes de excluir o item id(%s)", id),
+                                    "ERRO!", JOptionPane.ERROR_MESSAGE);
+                            break;
+                        }
+
+                        products.remove(checkedProduct);
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (found) {
+                    products.removeIf(item -> item.getId().equals(id));
+                    mapper.writeValue(fileLocation.toFile(), products);
+                    refreshTableByType(tableRegistereds, 0);
+                }
+
+                break;
             }
 
             case 1 -> {
@@ -358,6 +382,7 @@ public class Json {
                 clients.removeIf(client -> client.getId().equals(id));
                 mapper.writeValue(fileLocation.toFile(), clients);
                 refreshTableByType(tableRegistereds, 1);
+                break;
             }
 
             case 2 -> {
@@ -366,6 +391,7 @@ public class Json {
                 sales.removeIf(sale -> sale.getId().equals(id));
                 mapper.writeValue(fileLocation.toFile(), sales);
                 refreshSummariesTables(tableRegistereds, tableRegistereds);
+                break;
             }
 
             default ->
@@ -466,7 +492,7 @@ public class Json {
         mapper.writeValue(Json.getProductsFileLocation().toFile(), products);
     }
 
-    public static void updateStockFromCanceledSale(int saleId) throws IOException {
+    public static void updateStockFromCanceledSale(String saleId) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         mapper.registerModule(new JavaTimeModule());
@@ -488,7 +514,7 @@ public class Json {
             if (sale.getId().equals(saleId)) {
                 for (int i = 0; i < sale.getProductsSold().size(); i++) {
                     for (Product product : products) {
-                        if (product.getId() == sale.getProductsSold().get(i).getId()) {
+                        if (product.getId().equals(sale.getProductsSold().get(i).getId())) {
                             product.setAmount(product.getAmount() + sale.getProductsSold().get(i).getQuantity());
                             break;
                         }
@@ -624,4 +650,17 @@ public class Json {
                 StandardOpenOption.WRITE
         );
     }
+
+    //
+    private static boolean isProductInOngoingSale(String itemId, List<Sale> sales) {
+        for (Sale sale : sales) {
+            for (ProductSold productSold : sale.getProductsSold()) {
+                if (productSold.getId().equals(itemId)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 }
