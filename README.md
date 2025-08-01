@@ -28,7 +28,7 @@ Data is stored locally using JSON files for portability and simplicity.
 
 ## 🛠️ Requirements
 
-- ✅ Java 23 or higher installed  
+- ✅ Java 24 or higher installed  
 - ⚙️ Java must be available in your system's PATH
 
 ---
