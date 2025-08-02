@@ -133,7 +133,7 @@ public class ModalSaleFinalize extends javax.swing.JDialog {
         labelDiscountValue.setAutoscrolls(true);
         labelDiscountValue.setEnabled(false);
 
-        spinnerDiscountValue.setModel(new javax.swing.SpinnerNumberModel(1.0d, 1.0d, null, 1.0d));
+        spinnerDiscountValue.setModel(new javax.swing.SpinnerNumberModel(1.0d, 1.0d, 1.0d, 1.0d));
         spinnerDiscountValue.setAutoscrolls(true);
         spinnerDiscountValue.setEnabled(false);
 
@@ -171,7 +171,7 @@ public class ModalSaleFinalize extends javax.swing.JDialog {
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 308, Short.MAX_VALUE)
+            .addGap(0, 310, Short.MAX_VALUE)
             .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(jPanel3Layout.createSequentialGroup()
                     .addGap(75, 75, 75)
@@ -322,14 +322,29 @@ public class ModalSaleFinalize extends javax.swing.JDialog {
     }//GEN-LAST:event_checkInstallmentActionPerformed
 
     private void comboDiscountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboDiscountActionPerformed
+        double total = totalSale.doubleValue();
+        
         switch (comboDiscount.getSelectedIndex()) {
-            case 1, 2 -> {
+            case 1 -> {
                 labelDiscountValue.setEnabled(true);
                 spinnerDiscountValue.setEnabled(true);
+
+                SpinnerNumberModel model = new SpinnerNumberModel(1, 1, 100, 0.50);
+                spinnerDiscountValue.setModel(model);
+            }
+            case 2 -> {
+                labelDiscountValue.setEnabled(true);
+                spinnerDiscountValue.setEnabled(true);
+
+                SpinnerNumberModel model = new SpinnerNumberModel(1, 1, total, 0.50);
+                spinnerDiscountValue.setModel(model);
             }
             default -> {
                 labelDiscountValue.setEnabled(false);
                 spinnerDiscountValue.setEnabled(false);
+
+                SpinnerNumberModel model = new SpinnerNumberModel(1, 1, 1, 1);
+                spinnerDiscountValue.setModel(model);
             }
         }
     }//GEN-LAST:event_comboDiscountActionPerformed

@@ -154,7 +154,7 @@ public class Json {
                         product.getVolume() + "ml",
                         product.getAmount(),
                         String.format("R$ %.2f", product.getTotal()),
-                        String.format("%f%%", product.getMargin()),
+                        String.format("%.2f%%", product.getMargin()),
                         String.format("R$ %.2f", product.getProfit())
                     };
                     model.addRow(row);
