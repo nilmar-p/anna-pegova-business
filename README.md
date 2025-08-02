@@ -56,12 +56,12 @@ The generated `.jar` file will be located in `target/anna-pegova-stock-manager-1
 ## 📄 License
 This project is licensed under the [MIT License](./LICENSE).
 
-<img width="1366" height="768" alt="1" src="https://github.com/user-attachments/assets/e4bd0ee4-13d9-4404-8fc3-c5589c1062ec" />
-<img width="1366" height="768" alt="2" src="https://github.com/user-attachments/assets/09292e8c-2ddf-45ca-afc6-80195cd52aa5" />
-<img width="1366" height="768" alt="3" src="https://github.com/user-attachments/assets/82488f01-f2cf-440d-9d16-e44068ecd47f" />
-<img width="1366" height="768" alt="4" src="https://github.com/user-attachments/assets/b4fe8739-1c80-4975-8483-e4ce1ff05036" />
-<img width="1366" height="768" alt="5" src="https://github.com/user-attachments/assets/e0c590e9-4cbe-45e8-9259-b4d8e6af6b48" />
-<img width="1366" height="768" alt="6" src="https://github.com/user-attachments/assets/daac24db-5976-458d-9def-64962f615c01" />
-<img width="1366" height="768" alt="7" src="https://github.com/user-attachments/assets/324457f9-9cc7-4e94-b645-f5aee27758b9" />
-<img width="1366" height="768" alt="8" src="https://github.com/user-attachments/assets/26e5b2ef-d84e-4926-bda7-37de141c3b14" />
-<img width="1366" height="768" alt="9" src="https://github.com/user-attachments/assets/72acd557-9e80-435e-854c-a34b477cb311" />
+<img width="1920" height="1080" alt="Screenshot (2)" src="https://github.com/user-attachments/assets/668b80a0-829b-4f41-bd42-14af73530c1d" />
+<img width="1920" height="1080" alt="Screenshot (3)" src="https://github.com/user-attachments/assets/6cea5b9a-e0a0-463c-b2e9-71b19e3a69fc" />
+<img width="1920" height="1080" alt="Screenshot (4)" src="https://github.com/user-attachments/assets/d2705d2d-3f7a-48ff-ab34-a6011df2d8a8" />
+<img width="1920" height="1080" alt="Screenshot (5)" src="https://github.com/user-attachments/assets/4ae1eb29-5155-4756-97fd-e6cb0a004132" />
+<img width="1920" height="1080" alt="Screenshot (6)" src="https://github.com/user-attachments/assets/88932d26-6fbf-4e3a-9b83-36a1081e7a88" />
+<img width="1920" height="1080" alt="Screenshot (7)" src="https://github.com/user-attachments/assets/4495a865-af47-4ae7-a8c5-971d083b70da" />
+<img width="1920" height="1080" alt="Screenshot (8)" src="https://github.com/user-attachments/assets/0a68371f-2e46-45ba-a92e-56c6a83985d5" />
+<img width="1920" height="1080" alt="Screenshot (10)" src="https://github.com/user-attachments/assets/50db5900-4b4b-4159-bcc1-29fed1589176" />
+<img width="1920" height="1080" alt="Screenshot (11)" src="https://github.com/user-attachments/assets/e5b94da5-66e4-4fc4-8b97-483613dcc6ca" />
