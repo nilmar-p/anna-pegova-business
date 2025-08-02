@@ -43,11 +43,11 @@ public class Product {
     // desserialization
     @JsonCreator
     public Product(@JsonProperty("id") String id,
-                   @JsonProperty("name") String name,
-                   @JsonProperty("volume") int volume,
-                   @JsonProperty("price") BigDecimal price,
-                   @JsonProperty("amount") int amount,
-                   @JsonProperty("margin") BigDecimal margin) {
+            @JsonProperty("name") String name,
+            @JsonProperty("volume") int volume,
+            @JsonProperty("price") BigDecimal price,
+            @JsonProperty("amount") int amount,
+            @JsonProperty("margin") BigDecimal margin) {
         this.id = id;
         this.name = (name == null || name.trim().isEmpty()) ? "NOME VAZIO" : name.trim().toUpperCase();
         this.volume = Math.max(volume, 1);
@@ -59,13 +59,13 @@ public class Product {
     }
 
     // new product
-    public Product(String name, int volume, double price, int amount, int margin) {
+    public Product(String name, int volume, BigDecimal price, int amount, BigDecimal margin) {
         this.id = generateUniqueProductId();
         this.name = (name == null || name.trim().isEmpty()) ? "NOME VAZIO" : name.trim().toUpperCase();
         this.volume = Math.max(volume, 1);
         this.amount = Math.max(amount, 0);
-        this.price = BigDecimal.valueOf(price < 1 ? 1 : price);
-        this.margin = BigDecimal.valueOf(margin < 0 ? 1 : margin);
+        this.price = price.compareTo(BigDecimal.ONE) < 0 ? BigDecimal.ONE : price;
+        this.margin = margin.compareTo(BigDecimal.ZERO) < 0 ? BigDecimal.ONE : margin;
         calculateTotal();
         calculateProfit();
     }

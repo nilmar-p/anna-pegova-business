@@ -8,7 +8,9 @@ import java.util.logging.Logger;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableCellRenderer;
 import model.Sale;
 import utils.Json;
 import utils.Mask;
@@ -100,6 +102,8 @@ public class SummariesDialog extends javax.swing.JDialog {
         });
         tableInProgressSales.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tableInProgressSales.setShowGrid(false);
+        tableInProgressSales.setShowHorizontalLines(true);
+        tableInProgressSales.setShowVerticalLines(false);
         tableInProgressSales.getTableHeader().setReorderingAllowed(false);
         tableInProgressSales.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
@@ -107,6 +111,12 @@ public class SummariesDialog extends javax.swing.JDialog {
             }
         });
         jScrollPane1.setViewportView(tableInProgressSales);
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+        for (int i = 0; i < tableInProgressSales.getColumnCount(); i++) {
+            tableInProgressSales.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
         if (tableInProgressSales.getColumnModel().getColumnCount() > 0) {
             tableInProgressSales.getColumnModel().getColumn(0).setMinWidth(80);
             tableInProgressSales.getColumnModel().getColumn(0).setPreferredWidth(80);
@@ -222,7 +232,9 @@ public class SummariesDialog extends javax.swing.JDialog {
             }
         });
         tableCompletedSales.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        tableCompletedSales.setShowGrid(false);
+        tableCompletedSales.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tableCompletedSales.setShowGrid(true);
+        tableCompletedSales.setShowVerticalLines(false);
         tableCompletedSales.getTableHeader().setReorderingAllowed(false);
         tableCompletedSales.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
@@ -230,6 +242,13 @@ public class SummariesDialog extends javax.swing.JDialog {
             }
         });
         jScrollPane2.setViewportView(tableCompletedSales);
+        DefaultTableCellRenderer centerRendererCompleted = new DefaultTableCellRenderer();
+        centerRendererCompleted.setHorizontalAlignment(SwingConstants.CENTER);
+        centerRendererCompleted.setVerticalAlignment(SwingConstants.CENTER);
+
+        for (int i = 0; i < tableCompletedSales.getColumnCount(); i++) {
+            tableCompletedSales.getColumnModel().getColumn(i).setCellRenderer(centerRendererCompleted);
+        }
         if (tableCompletedSales.getColumnModel().getColumnCount() > 0) {
             tableCompletedSales.getColumnModel().getColumn(0).setMinWidth(80);
             tableCompletedSales.getColumnModel().getColumn(0).setPreferredWidth(80);

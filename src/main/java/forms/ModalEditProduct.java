@@ -1,6 +1,7 @@
 package forms;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import javax.swing.JOptionPane;
 import model.Product;
 import utils.Json;
@@ -210,9 +211,9 @@ public class ModalEditProduct extends javax.swing.JDialog {
             updatedProduct = new Product(
                     fieldName.getText(),
                     ((Number) spinnerVolume.getValue()).intValue(),
-                    ((Number) spinnerPrice.getValue()).doubleValue(),
+                    new BigDecimal(spinnerPrice.getValue().toString()), // Valor em BigDecimal diretamente
                     ((Number) spinnerAmount.getValue()).intValue(),
-                    ((Number) spinnerMargin.getValue()).intValue()
+                    new BigDecimal(spinnerMargin.getValue().toString())
             );
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "ERRO AO EDITAR PRODUTO!", "ERRO!", JOptionPane.ERROR_MESSAGE);

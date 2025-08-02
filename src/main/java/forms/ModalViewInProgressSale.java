@@ -8,6 +8,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import model.Installment;
 import model.ProductSold;
@@ -112,8 +114,16 @@ public class ModalViewInProgressSale extends javax.swing.JDialog {
         });
         tableInProgressSale.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tableInProgressSale.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tableInProgressSale.setShowHorizontalLines(true);
         tableInProgressSale.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(tableInProgressSale);
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        centerRenderer.setVerticalAlignment(SwingConstants.CENTER); // esse aqui cuida da linha
+
+        for (int i = 0; i < tableInProgressSale.getColumnCount(); i++) {
+            tableInProgressSale.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
         if (tableInProgressSale.getColumnModel().getColumnCount() > 0) {
             tableInProgressSale.getColumnModel().getColumn(0).setMinWidth(80);
             tableInProgressSale.getColumnModel().getColumn(0).setPreferredWidth(80);

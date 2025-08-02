@@ -1,5 +1,7 @@
 package utils;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import javax.swing.DefaultComboBoxModel;
@@ -27,12 +29,12 @@ public class Mask {
             return false;
         }
 
-        if ((double) spinnerPrice.getValue() <= 0.0) {
+        if (new BigDecimal(spinnerPrice.getValue().toString()).compareTo(BigDecimal.ONE) <= 0) {
             JOptionPane.showMessageDialog(null, "Preço não pode ser 0!", "ERRO!", JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
-        if ((int) spinnerMargin.getValue() <= 0) {
+        if (new BigDecimal(spinnerMargin.getValue().toString()).compareTo(BigDecimal.ONE) <= 0) {
             JOptionPane.showMessageDialog(null, "Margem de lucro não pode ser 0!", "ERRO!", JOptionPane.ERROR_MESSAGE);
             return false;
         }

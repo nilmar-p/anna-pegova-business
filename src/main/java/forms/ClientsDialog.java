@@ -8,7 +8,9 @@ import java.util.logging.Logger;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableCellRenderer;
 import model.Client;
 import utils.Json;
 import utils.Mask;
@@ -144,6 +146,7 @@ public class ClientsDialog extends javax.swing.JDialog {
         });
         tableRegistereds.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tableRegistereds.setShowGrid(false);
+        tableRegistereds.setShowHorizontalLines(true);
         tableRegistereds.getTableHeader().setReorderingAllowed(false);
         tableRegistereds.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mousePressed(java.awt.event.MouseEvent evt) {
@@ -151,6 +154,13 @@ public class ClientsDialog extends javax.swing.JDialog {
             }
         });
         jScrollPane1.setViewportView(tableRegistereds);
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        centerRenderer.setVerticalAlignment(SwingConstants.CENTER);
+
+        for (int i = 0; i < tableRegistereds.getColumnCount(); i++) {
+            tableRegistereds.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
         if (tableRegistereds.getColumnModel().getColumnCount() > 0) {
             tableRegistereds.getColumnModel().getColumn(0).setMinWidth(80);
             tableRegistereds.getColumnModel().getColumn(0).setPreferredWidth(80);

@@ -2,6 +2,8 @@ package utils;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import enums.InstallmentStatus;
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +36,8 @@ public class Search {
 
         DefaultTableModel tableRegisteredsModel = (DefaultTableModel) tableRegistereds.getModel();
         ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         tableRegisteredsModel.setRowCount(0);
 
@@ -81,7 +85,7 @@ public class Search {
                         Object[] saleA = {
                             sale.getId(),
                             String.format("R$ %.2f", sale.getTotalValue()),
-                            String.format("%d - %s", sale.getClientId(), sale.getClientName()),
+                            String.format("%s - %s", sale.getClientId(), sale.getClientName()),
                             formattedDate
                         };
 
@@ -100,8 +104,8 @@ public class Search {
                         Object[] saleA = {
                             sale.getId(),
                             String.format("R$ %.2f", sale.getTotalValue()),
-                            String.format("%d - %s", sale.getClientId(), sale.getClientName()),
-                            "-"
+                            String.format("%s - %s", sale.getClientId(), sale.getClientName()),
+                            "CONCLUÍDA"
                         };
 
                         tableRegisteredsModel.addRow(saleA);

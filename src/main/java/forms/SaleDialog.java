@@ -17,7 +17,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import model.Client;
 import model.Product;
@@ -241,6 +243,7 @@ public class SaleDialog extends javax.swing.JDialog {
                 return canEdit [columnIndex];
             }
         });
+        tableSaleSummary.setShowHorizontalLines(true);
         tableSaleSummary.addContainerListener(new java.awt.event.ContainerAdapter() {
             public void componentAdded(java.awt.event.ContainerEvent evt) {
                 tableSaleSummaryComponentAdded(evt);
@@ -252,6 +255,13 @@ public class SaleDialog extends javax.swing.JDialog {
             }
         });
         jScrollPane1.setViewportView(tableSaleSummary);
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        centerRenderer.setVerticalAlignment(SwingConstants.CENTER);
+
+        for (int i = 0; i < tableSaleSummary.getColumnCount(); i++) {
+            tableSaleSummary.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
         if (tableSaleSummary.getColumnModel().getColumnCount() > 0) {
             tableSaleSummary.getColumnModel().getColumn(0).setMinWidth(80);
             tableSaleSummary.getColumnModel().getColumn(0).setPreferredWidth(80);

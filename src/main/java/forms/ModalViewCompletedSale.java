@@ -3,6 +3,8 @@ package forms;
 import enums.InstallmentStatus;
 import java.math.BigDecimal;
 import java.util.List;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import model.Installment;
 import model.ProductSold;
@@ -91,8 +93,16 @@ public class ModalViewCompletedSale extends javax.swing.JDialog {
         });
         tableCompletedSale.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         tableCompletedSale.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tableCompletedSale.setShowHorizontalLines(true);
         tableCompletedSale.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(tableCompletedSale);
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        centerRenderer.setVerticalAlignment(SwingConstants.CENTER);
+
+        for (int i = 0; i < tableCompletedSale.getColumnCount(); i++) {
+            tableCompletedSale.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
         if (tableCompletedSale.getColumnModel().getColumnCount() > 0) {
             tableCompletedSale.getColumnModel().getColumn(0).setMinWidth(50);
             tableCompletedSale.getColumnModel().getColumn(0).setPreferredWidth(50);

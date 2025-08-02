@@ -319,7 +319,7 @@
                 <Column editable="false" title="TOTAL" type="java.lang.Object"/>
               </Table>
             </Property>
-            <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
+            <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor" preCode="DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();&#xa;centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);&#xa;centerRenderer.setVerticalAlignment(SwingConstants.CENTER);&#xa;&#xa;for (int i = 0; i &lt; tableSaleSummary.getColumnCount(); i++) {&#xa;    tableSaleSummary.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);&#xa;}">
               <TableColumnModel selectionModel="0">
                 <Column maxWidth="80" minWidth="80" prefWidth="80" resizable="true">
                   <Title/>
@@ -343,6 +343,7 @@
                 </Column>
               </TableColumnModel>
             </Property>
+            <Property name="showHorizontalLines" type="boolean" value="true"/>
             <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
               <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
             </Property>

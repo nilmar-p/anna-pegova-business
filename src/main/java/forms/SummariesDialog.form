@@ -138,7 +138,7 @@
                 <Column editable="false" title="PROX. PARCELA" type="java.lang.Object"/>
               </Table>
             </Property>
-            <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
+            <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor" preCode="DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();&#xa;centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);&#xa;&#xa;for (int i = 0; i &lt; tableInProgressSales.getColumnCount(); i++) {&#xa;    tableInProgressSales.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);&#xa;}">
               <TableColumnModel selectionModel="0">
                 <Column maxWidth="80" minWidth="80" prefWidth="80" resizable="true">
                   <Title/>
@@ -164,6 +164,8 @@
             </Property>
             <Property name="selectionMode" type="int" value="0"/>
             <Property name="showGrid" type="boolean" value="false"/>
+            <Property name="showHorizontalLines" type="boolean" value="true"/>
+            <Property name="showVerticalLines" type="boolean" value="false"/>
             <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
               <TableHeader reorderingAllowed="false" resizingAllowed="true"/>
             </Property>
@@ -366,7 +368,7 @@
                 <Column editable="false" title="ULTIMA PARCELA" type="java.lang.Object"/>
               </Table>
             </Property>
-            <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
+            <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor" preCode="DefaultTableCellRenderer centerRendererCompleted = new DefaultTableCellRenderer();&#xa;centerRendererCompleted.setHorizontalAlignment(SwingConstants.CENTER);&#xa;centerRendererCompleted.setVerticalAlignment(SwingConstants.CENTER);&#xa;&#xa;for (int i = 0; i &lt; tableCompletedSales.getColumnCount(); i++) {&#xa;    tableCompletedSales.getColumnModel().getColumn(i).setCellRenderer(centerRendererCompleted);&#xa;}">
               <TableColumnModel selectionModel="0">
                 <Column maxWidth="80" minWidth="80" prefWidth="80" resizable="true">
                   <Title/>
@@ -390,10 +392,12 @@
                 </Column>
               </TableColumnModel>
             </Property>
+            <Property name="selectionMode" type="int" value="0"/>
             <Property name="selectionModel" type="javax.swing.ListSelectionModel" editor="org.netbeans.modules.form.editors2.JTableSelectionModelEditor">
               <JTableSelectionModel selectionMode="0"/>
             </Property>
-            <Property name="showGrid" type="boolean" value="false"/>
+            <Property name="showGrid" type="boolean" value="true"/>
+            <Property name="showVerticalLines" type="boolean" value="false"/>
             <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
               <TableHeader reorderingAllowed="false" resizingAllowed="true"/>
             </Property>

@@ -198,7 +198,7 @@
                 <Column editable="false" title="Total" type="java.lang.Object"/>
               </Table>
             </Property>
-            <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
+            <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor" preCode="DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();&#xa;centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);&#xa;centerRenderer.setVerticalAlignment(SwingConstants.CENTER); // esse aqui cuida da linha&#xa;&#xa;for (int i = 0; i &lt; tableInProgressSale.getColumnCount(); i++) {&#xa;    tableInProgressSale.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);&#xa;}">
               <TableColumnModel selectionModel="0">
                 <Column maxWidth="80" minWidth="80" prefWidth="80" resizable="true">
                   <Title/>
@@ -226,6 +226,7 @@
             <Property name="selectionModel" type="javax.swing.ListSelectionModel" editor="org.netbeans.modules.form.editors2.JTableSelectionModelEditor">
               <JTableSelectionModel selectionMode="0"/>
             </Property>
+            <Property name="showHorizontalLines" type="boolean" value="true"/>
             <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
               <TableHeader reorderingAllowed="false" resizingAllowed="true"/>
             </Property>
