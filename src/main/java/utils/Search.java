@@ -54,7 +54,7 @@ public class Search {
                             product.getVolume() + "ml",
                             product.getAmount(),
                             String.format("R$ %.2f", product.getTotal()),
-                            String.format("%d%%", product.getMargin()),
+                            String.format("%.2f%%", product.getMargin()),
                             String.format("R$ %.2f", product.getProfit())
                         };
 
