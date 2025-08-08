@@ -13,7 +13,6 @@ Data is stored locally using JSON files for portability and simplicity.
 - 💳 **Installment tracking panel** with status control and payment registration  
 - 📊 **Financial summary dashboard** for pending and completed payments  
 - 📁 **Local JSON storage** for all product, customer, and sales data  
-- 💾 **Backup/export support** for all data
 
 ---
 
