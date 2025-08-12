@@ -1,4 +1,4 @@
-# 📦 Anna Pegova Business Manager
+# 📦 Anna Pegova Business
 
 ![Last Commit](https://img.shields.io/github/last-commit/nilmar-p/anna-pegova-business-manager?style=flat-square)
 ![Top Language](https://img.shields.io/github/languages/top/nilmar-p/anna-pegova-business-manager?style=flat-square)
