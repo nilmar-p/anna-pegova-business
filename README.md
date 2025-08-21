@@ -11,7 +11,6 @@ Data is stored locally using JSON files for portability and simplicity.
 - ✅ **Register, Edit, Delete, and Search** products and customers  
 - 📦 **Manage sales** with automatic net value and installment calculations  
 - 💳 **Installment tracking panel** with status control and payment registration  
-- 📊 **Financial summary dashboard** for pending and completed payments  
 - 📁 **Local JSON storage** for all product, customer, and sales data  
 
 ---
